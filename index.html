@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Class Routine</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Routine">
+<meta name="theme-color" content="#0c1018">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" onerror="this.remove()">
+<style>
+  :root{
+    --board-bg:#0c1018;
+    --board-bg-2:#111726;
+    --amber:#ffb200;
+    --amber-dim:#7a5c12;
+    --paper:#e9e4d8;
+    --ink:#0c1018;
+    --line:#232b3d;
+    --off-day:#5b6272;
+
+    --c-ai:#7b2fd4;
+    --c-ailab:#d21e6e;
+    --c-ps:#2f7fd8;
+    --c-ca:#173f7a;
+    --c-toc:#12977a;
+    --c-spd:#2c9251;
+    --c-fma:#e08a1e;
+    --c-lpl:#dd5228;
+    --c-cn:#d4a017;
+    --c-cnlab:#93475a;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--board-bg);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:48px;
+  }
+
+  .board-frame{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 0 24px;
+  }
+
+  header.hero{
+    padding:28px 20px 18px;
+    border-bottom:3px solid var(--amber);
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px),
+      var(--board-bg-2);
+    position:relative;
+  }
+  header.hero::before{
+    content:"UNIVERSITY TIMETABLE SYSTEM";
+    display:block;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:3px;
+    color:var(--amber-dim);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(26px,6.6vw,38px);
+    margin:0 0 6px;
+    letter-spacing:0.5px;
+    line-height:1.05;
+  }
+  h1 span{color:var(--amber);}
+  .subhead{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    color:#9aa2b5;
+    letter-spacing:1px;
+    display:flex;
+    justify-content:space-between;
+    margin-top:14px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .subhead b{color:var(--amber); font-weight:700;}
+
+  .section-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    margin-top:14px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:1.5px;
+    color:var(--amber);
+    background:rgba(255,178,0,0.08);
+    border:1px solid var(--amber-dim);
+    padding:5px 12px;
+    border-radius:3px;
+  }
+  .section-badge button{
+    border:none;
+    background:none;
+    color:#7d8497;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:1px;
+    cursor:pointer;
+    padding:0;
+    text-decoration:underline;
+  }
+
+  nav.days{
+    display:flex;
+    overflow-x:auto;
+    background:var(--board-bg-2);
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:5;
+    scrollbar-width:none;
+  }
+  nav.days::-webkit-scrollbar{display:none;}
+  nav.days button{
+    flex:1 0 auto;
+    min-width:76px;
+    background:none;
+    border:none;
+    color:#7d8497;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:1.5px;
+    padding:14px 10px 12px;
+    cursor:pointer;
+    position:relative;
+    border-bottom:3px solid transparent;
+    transition:color .15s ease;
+  }
+  nav.days button .full{display:block; font-family:'Inter',sans-serif; font-size:13px; letter-spacing:0; font-weight:600; margin-top:3px; color:inherit;}
+  nav.days button.active{color:var(--amber); border-bottom-color:var(--amber);}
+  nav.days button .dot{
+    display:none;
+    width:5px;height:5px;border-radius:50%;background:var(--amber);
+    position:absolute; top:8px; right:14px;
+  }
+  nav.days button.is-today .dot{display:block;}
+
+  .board{padding:14px 16px 4px;}
+
+  .empty-day{
+    font-family:'Space Mono',monospace;
+    color:var(--off-day);
+    text-align:center;
+    padding:60px 20px;
+    font-size:14px;
+    letter-spacing:2px;
+    border:1px dashed var(--line);
+    border-radius:4px;
+    margin-top:8px;
+  }
+  .empty-day .big{
+    display:block;
+    font-family:'Archivo Black',sans-serif;
+    font-size:20px;
+    color:#39404f;
+    letter-spacing:1px;
+    margin-bottom:10px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:78px 1fr 62px;
+    gap:12px;
+    align-items:center;
+    padding:14px 10px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .row:last-child{border-bottom:none;}
+
+  .row.now{
+    background:linear-gradient(90deg, rgba(255,178,0,0.10), transparent 70%);
+  }
+  .row.now::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--amber);
+  }
+
+  .time{
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    line-height:1.35;
+    color:#c9cedb;
+    letter-spacing:0.5px;
+  }
+  .row.now .time{color:var(--amber);}
+
+  .seq{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    color:#565e70;
+    display:block;
+    margin-bottom:3px;
+  }
+
+  .subject-wrap{min-width:0;}
+  .chip{
+    display:inline-block;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    letter-spacing:0.2px;
+    color:#fff;
+    padding:5px 10px;
+    border-radius:3px;
+    line-height:1.2;
+    max-width:100%;
+  }
+  .faculty{
+    display:block;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    color:#767e91;
+    margin-top:6px;
+    letter-spacing:1px;
+  }
+
+  .gate{
+    font-family:'Space Mono',monospace;
+    text-align:right;
+  }
+  .gate .lbl{display:block; font-size:8.5px; color:#565e70; letter-spacing:1.5px; margin-bottom:2px;}
+  .gate .num{
+    font-size:14px;
+    font-weight:700;
+    color:var(--paper);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:3px 6px;
+    display:inline-block;
+  }
+  .row.now .gate .num{border-color:var(--amber); color:var(--amber);}
+
+  .status-banner{
+    margin:14px 16px 0;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--amber);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .status-banner .blink{
+    width:6px;height:6px;border-radius:50%;background:var(--amber);
+    animation:blink 1.4s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  footer.note{
+    text-align:center;
+    padding:26px 20px 0;
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    color:#565e70;
+    letter-spacing:1.5px;
+    line-height:2.1;
+  }
+  footer.note b{
+    display:block;
+    color:var(--amber-dim);
+    font-size:11px;
+    letter-spacing:1.5px;
+  }
+
+  /* flip-in animation when switching days */
+  @keyframes flipIn{
+    0%{ transform:rotateX(90deg); opacity:0; }
+    60%{ transform:rotateX(-8deg); opacity:1; }
+    100%{ transform:rotateX(0); opacity:1; }
+  }
+  .row, .empty-day{
+    transform-origin:top center;
+    animation:flipIn .38s ease both;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .row, .empty-day{animation:none;}
+    .status-banner .blink{animation:none;}
+  }
+
+  /* ---------- two-step select overlay ---------- */
+  .select-overlay{
+    position:fixed;
+    inset:0;
+    background:var(--board-bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:24px;
+  }
+  .select-card{
+    max-width:380px;
+    width:100%;
+    text-align:center;
+  }
+  .select-card .kicker{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:3px;
+    color:var(--amber-dim);
+    margin-bottom:12px;
+  }
+  .select-card h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:24px;
+    margin:0 0 8px;
+    color:var(--paper);
+  }
+  .select-card p{
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    color:#7d8497;
+    line-height:1.7;
+    margin:0 0 30px;
+    letter-spacing:0.5px;
+  }
+  .select-options{
+    display:flex;
+    gap:14px;
+  }
+  .select-options.three button{font-size:20px;}
+  .select-options button{
+    flex:1;
+    padding:24px 8px;
+    border-radius:4px;
+    border:1px solid var(--line);
+    background:var(--board-bg-2);
+    font-family:'Archivo Black',sans-serif;
+    font-size:26px;
+    color:var(--paper);
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .select-options button:hover,
+  .select-options button:active{
+    border-color:var(--amber);
+    color:var(--amber);
+  }
+  .select-options .tag{
+    display:block;
+    font-family:'Space Mono',monospace;
+    font-size:9px;
+    letter-spacing:1.5px;
+    color:#565e70;
+    margin-top:6px;
+  }
+  .back-link{
+    display:inline-block;
+    margin-top:22px;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    color:#565e70;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+  }
+</style>
+</head>
+<body>
+
+<div id="selectOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="selectCardInner"></div>
+</div>
+
+<div class="board-frame">
+  <header class="hero">
+    <h1 id="pageTitle">CLASS ROUTINE</h1>
+    <div class="subhead">
+      <span>DAY-WISE · SERIAL BY TIME</span>
+      <span id="clock">—</span>
+    </div>
+    <div id="sectionBadge"></div>
+  </header>
+
+  <nav class="days" id="dayNav"></nav>
+
+  <div class="status-banner" id="statusBanner" style="display:none;">
+    <span class="blink"></span>
+    <span id="statusText"></span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <footer class="note">
+    <b>MADE BY MAHIM AHMED RAHIM</b>
+    CSE DEPARTMENT
+  </footer>
+</div>
+
+<script>
+const SUBJECTS = {
+  ai:     {name:"Artificial Intelligence", color:"var(--c-ai)"},
+  ailab:  {name:"Artificial Intelligence Lab", color:"var(--c-ailab)"},
+  ps:     {name:"Probability & Statistics", color:"var(--c-ps)"},
+  ca:     {name:"Computer Architecture", color:"var(--c-ca)"},
+  toc:    {name:"Theory of Computation", color:"var(--c-toc)"},
+  spd:    {name:"Software Project Design & Dev. Lab", color:"var(--c-spd)"},
+  fma:    {name:"Financial & Managerial Accounting", color:"var(--c-fma)"},
+  lpl:    {name:"Linux Programming Lab", color:"var(--c-lpl)"},
+  cn:     {name:"Computer Networks", color:"var(--c-cn)"},
+  cnlab:  {name:"Computer Networks Lab", color:"var(--c-cnlab)"},
+};
+
+// dow: 0=Sun ... matches JS getDay()
+const SECTIONS = {
+  "5A": {
+    groups:["A1","A2"],
+    days:[
+      { dow:0, label:"SUN", full:"Sunday", classes:[
+        {start:[8,0], end:[10,0], subj:"ps", fac:"RAF", room:"413"},
+        {start:[9,0], end:[11,0], subj:"cnlab", fac:"TSC", room:"504", batch:"A2"},
+        {start:[12,0], end:[14,0], subj:"ai", fac:"RA", room:"413"},
+        {start:[14,0], end:[16,0], subj:"ca", fac:"SMZI", room:"413"},
+      ]},
+      { dow:1, label:"MON", full:"Monday", classes:[
+        {start:[8,0], end:[10,0], subj:"cnlab", fac:"TSC", room:"504", batch:"A1"},
+        {start:[8,0], end:[10,0], subj:"spd", fac:"", room:"407", batch:"A2"},
+        {start:[9,0], end:[11,0], subj:"lpl", fac:"SOA, MTT", room:"805"},
+        {start:[12,0], end:[13,0], subj:"cn", fac:"FTTE", room:"413"},
+        {start:[13,0], end:[15,0], subj:"ca", fac:"SMZI", room:"509"},
+      ]},
+      { dow:2, label:"TUE", full:"Tuesday", classes:[
+        {start:[8,0], end:[10,0], subj:"toc", fac:"SAU", room:"412"},
+        {start:[10,0], end:[12,0], subj:"cn", fac:"FTTE", room:"412"},
+        {start:[12,0], end:[13,0], subj:"ai", fac:"RA", room:"204"},
+        {start:[13,0], end:[14,0], subj:"ps", fac:"RAF", room:"510"},
+      ]},
+      { dow:3, label:"WED", full:"Wednesday", classes:[
+        {start:[8,0], end:[10,0], subj:"spd", fac:"EMSH", room:"805", batch:"A1"},
+        {start:[11,0], end:[13,0], subj:"fma", fac:"HM", room:"602"},
+        {start:[14,0], end:[16,0], subj:"ailab", fac:"DB, FUZ", room:"805"},
+      ]},
+      { dow:4, label:"THU", full:"Thursday", classes:[]},
+    ]
+  },
+  "5B": {
+    groups:["B1","B2"],
+    days:[
+      { dow:0, label:"SUN", full:"Sunday", classes:[
+        {start:[8,0], end:[10,0], subj:"cnlab", fac:"TSC", room:"502", batch:"B1"},
+        {start:[11,0], end:[12,0], subj:"ps", fac:"RAF", room:"413"},
+        {start:[12,0], end:[14,0], subj:"ca", fac:"MTS", room:"202"},
+        {start:[14,0], end:[16,0], subj:"toc", fac:"MAD", room:"412"},
+      ]},
+      { dow:1, label:"MON", full:"Monday", classes:[
+        {start:[8,0], end:[10,0], subj:"spd", fac:"DUKJ", room:"805", batch:"B1"},
+        {start:[8,0], end:[10,0], subj:"spd", fac:"", room:"806", batch:"B2"},
+        {start:[10,0], end:[13,0], subj:"ai", fac:"MDF", room:"204"},
+      ]},
+      { dow:2, label:"TUE", full:"Tuesday", classes:[
+        {start:[8,0], end:[10,0], subj:"ps", fac:"RAF", room:"510"},
+        {start:[10,0], end:[11,0], subj:"ai", fac:"MDF", room:"602"},
+        {start:[11,0], end:[13,0], subj:"lpl", fac:"MTT, DB", room:"805"},
+        {start:[13,0], end:[14,0], subj:"cn", fac:"FTTE", room:"412"},
+        {start:[14,0], end:[16,0], subj:"ailab", fac:"DB, FUZ", room:"411", batch:"B2"},
+      ]},
+      { dow:3, label:"WED", full:"Wednesday", classes:[]},
+      { dow:4, label:"THU", full:"Thursday", classes:[
+        {start:[8,0], end:[10,0], subj:"fma", fac:"HM", room:"510"},
+        {start:[10,0], end:[12,0], subj:"cn", fac:"FTTE", room:"412"},
+        {start:[12,0], end:[14,0], subj:"cnlab", fac:"TSC", room:"504", batch:"B2"},
+        {start:[15,0], end:[16,0], subj:"ca", fac:"MTS", room:"413"},
+      ]},
+    ]
+  },
+  "5C": {
+    groups:["C1","C2"],
+    days:[
+      { dow:0, label:"SUN", full:"Sunday", classes:[
+        {start:[9,0], end:[10,0], subj:"ca", fac:"MTS", room:"602"},
+        {start:[10,0], end:[12,0], subj:"lpl", fac:"MTT, AMT", room:"212"},
+        {start:[12,0], end:[14,0], subj:"cn", fac:"MMS", room:"602"},
+        {start:[14,0], end:[16,0], subj:"ailab", fac:"MTS, MDFI", room:"805"},
+      ]},
+      { dow:1, label:"MON", full:"Monday", classes:[
+        {start:[8,0], end:[10,0], subj:"ps", fac:"RAF", room:"510"},
+        {start:[10,0], end:[11,0], subj:"ai", fac:"RA", room:"412"},
+        {start:[11,0], end:[13,0], subj:"toc", fac:"SSCSE", room:"602"},
+        {start:[12,0], end:[14,0], subj:"cnlab", fac:"TSC", room:"504", batch:"C1"},
+        {start:[12,0], end:[14,0], subj:"spd", fac:"DRH", room:"212", batch:"C2"},
+      ]},
+      { dow:2, label:"TUE", full:"Tuesday", classes:[
+        {start:[8,0], end:[10,0], subj:"ai", fac:"RA", room:"603"},
+        {start:[10,0], end:[11,0], subj:"ps", fac:"RAF", room:"510"},
+        {start:[11,0], end:[13,0], subj:"cn", fac:"MMS", room:"602"},
+        {start:[13,0], end:[14,0], subj:"ca", fac:"MTS", room:"204"},
+      ]},
+      { dow:3, label:"WED", full:"Wednesday", classes:[
+        {start:[8,0], end:[10,0], subj:"fma", fac:"HM", room:"602"},
+        {start:[11,0], end:[13,0], subj:"spd", fac:"SAC", room:"805", batch:"C1"},
+        {start:[11,0], end:[12,0], subj:"cnlab", fac:"MMS", room:"406", batch:"C2"},
+      ]},
+      { dow:4, label:"THU", full:"Thursday", classes:[]},
+    ]
+  },
+};
+
+function fmt(t){
+  let [h,m] = t;
+  const ap = h >= 12 ? "PM" : "AM";
+  let h12 = h % 12; if(h12===0) h12=12;
+  return `${h12}:${m.toString().padStart(2,"0")} ${ap}`;
+}
+function minutes(t){ return t[0]*60 + t[1]; }
+
+const now = new Date();
+const nowDow = now.getDay();
+const nowMin = now.getHours()*60 + now.getMinutes();
+
+const overlay = document.getElementById("selectOverlay");
+const selectCardInner = document.getElementById("selectCardInner");
+const sectionBadge = document.getElementById("sectionBadge");
+const pageTitle = document.getElementById("pageTitle");
+const dayNav = document.getElementById("dayNav");
+
+const SEC_KEY = "routine-section";
+const GRP_KEY = "routine-group";
+
+let currentSection = null;
+let currentGroup = null;
+let activeDow = null;
+let DATA = null;
+
+function buildDayNav(){
+  dayNav.innerHTML = "";
+  DATA.forEach(d=>{
+    const btn = document.createElement("button");
+    btn.dataset.dow = d.dow;
+    btn.innerHTML = `${d.label}<span class="full">${d.full.slice(0,3)}</span><span class="dot"></span>`;
+    if(d.dow===nowDow) btn.classList.add("is-today");
+    btn.addEventListener("click", ()=>{ activeDow = d.dow; render(); });
+    dayNav.appendChild(btn);
+  });
+}
+
+function render(){
+  document.querySelectorAll("nav.days button").forEach(b=>{
+    b.classList.toggle("active", parseInt(b.dataset.dow)===activeDow);
+  });
+
+  const day = DATA.find(d=>d.dow===activeDow);
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  const banner = document.getElementById("statusBanner");
+  const statusText = document.getElementById("statusText");
+  banner.style.display = "none";
+
+  const visibleClasses = day.classes.filter(c => !c.batch || c.batch === currentGroup);
+
+  if(visibleClasses.length === 0){
+    board.innerHTML = `<div class="empty-day"><span class="big">NO CLASSES</span>Enjoy your ${day.full}.</div>`;
+    return;
+  }
+
+  let currentIdx = -1, nextIdx = -1;
+  if(day.dow === nowDow){
+    visibleClasses.forEach((c,i)=>{
+      const s = minutes(c.start), e = minutes(c.end);
+      if(nowMin >= s && nowMin < e) currentIdx = i;
+      if(nextIdx === -1 && nowMin < s) nextIdx = i;
+    });
+  }
+
+  if(currentIdx > -1){
+    const c = visibleClasses[currentIdx];
+    banner.style.display = "flex";
+    statusText.textContent = `IN PROGRESS · ${SUBJECTS[c.subj].name.toUpperCase()} ENDS ${fmt(c.end)}`;
+  } else if(nextIdx > -1){
+    const c = visibleClasses[nextIdx];
+    banner.style.display = "flex";
+    statusText.textContent = `NEXT UP · ${SUBJECTS[c.subj].name.toUpperCase()} AT ${fmt(c.start)}`;
+  }
+
+  visibleClasses.forEach((c,i)=>{
+    const subj = SUBJECTS[c.subj];
+    const row = document.createElement("div");
+    row.className = "row" + (i===currentIdx ? " now" : "");
+    row.style.animationDelay = (i*0.045)+"s";
+    row.innerHTML = `
+      <div class="time"><span class="seq">${(i+1).toString().padStart(2,"0")}</span>${fmt(c.start)}<br>– ${fmt(c.end)}</div>
+      <div class="subject-wrap">
+        <span class="chip" style="background:${subj.color}">${subj.name}</span>
+        <span class="faculty">${c.fac}</span>
+      </div>
+      <div class="gate"><span class="lbl">ROOM</span><span class="num">${c.room}${c.batch ? " " + c.batch : ""}</span></div>
+    `;
+    board.appendChild(row);
+  });
+}
+
+function tickClock(){
+  const d = new Date();
+  const days=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  document.getElementById("clock").textContent =
+    `${days[d.getDay()]} ${fmt([d.getHours(), d.getMinutes()])}`;
+}
+tickClock();
+setInterval(tickClock, 15000);
+setInterval(()=>{ if(currentSection) render(); }, 30000);
+
+function updateBadge(){
+  sectionBadge.innerHTML = `
+    <div class="section-badge">
+      ${currentSection} · GROUP ${currentGroup}
+      <button id="changeBtn">CHANGE</button>
+    </div>`;
+  document.getElementById("changeBtn").addEventListener("click", showSectionStep);
+}
+
+function startWith(section, group){
+  currentSection = section;
+  currentGroup = group;
+  DATA = SECTIONS[section].days;
+  pageTitle.innerHTML = `SECTION <span>${section}</span>`;
+  activeDow = DATA.some(d=>d.dow===nowDow) ? nowDow : DATA[0].dow;
+
+  overlay.style.display = "none";
+  buildDayNav();
+  updateBadge();
+  render();
+}
+
+function saveAndStart(section, group){
+  localStorage.setItem(SEC_KEY, section);
+  localStorage.setItem(GRP_KEY, group);
+  startWith(section, group);
+}
+
+function showGroupStep(section){
+  const groups = SECTIONS[section].groups;
+  selectCardInner.innerHTML = `
+    <div class="kicker">GROUP SELECT</div>
+    <h2>Choose Your Group</h2>
+    <p>Section ${section} splits into ${groups.join(" / ")}<br>for lab classes. Saved on this device.</p>
+    <div class="select-options">
+      ${groups.map(g => `<button data-group="${g}">${g}<span class="tag">GROUP ${g}</span></button>`).join("")}
+    </div>
+    <button class="back-link" id="backBtn">‹ BACK TO SECTION</button>
+  `;
+  selectCardInner.querySelectorAll("[data-group]").forEach(btn=>{
+    btn.addEventListener("click", ()=> saveAndStart(section, btn.dataset.group));
+  });
+  document.getElementById("backBtn").addEventListener("click", showSectionStep);
+}
+
+function showSectionStep(){
+  overlay.style.display = "flex";
+  const sections = Object.keys(SECTIONS);
+  selectCardInner.innerHTML = `
+    <div class="kicker">SECTION SELECT</div>
+    <h2>Choose Your Section</h2>
+    <p>Selected once, this is saved<br>on this device.</p>
+    <div class="select-options three">
+      ${sections.map(s => `<button data-section="${s}">${s}</button>`).join("")}
+    </div>
+  `;
+  selectCardInner.querySelectorAll("[data-section]").forEach(btn=>{
+    btn.addEventListener("click", ()=> showGroupStep(btn.dataset.section));
+  });
+}
+
+const savedSection = localStorage.getItem(SEC_KEY);
+const savedGroup = localStorage.getItem(GRP_KEY);
+
+if(savedSection && SECTIONS[savedSection] && savedGroup && SECTIONS[savedSection].groups.includes(savedGroup)){
+  startWith(savedSection, savedGroup);
+} else {
+  showSectionStep();
+}
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
