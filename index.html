@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -695,7 +695,65 @@ if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   });
 }
+
+/* ---- Install App prompt ---- */
+(function(){
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if(isStandalone) return;
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  const btn = document.createElement("button");
+  btn.id = "installAppBtn";
+  btn.textContent = "📲 Install App";
+  btn.style.cssText = "position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;background:#ffb200;color:#0c1018;font-weight:700;border:none;border-radius:999px;padding:12px 22px;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.4);display:none;cursor:pointer;font-family:inherit;";
+  document.body.appendChild(btn);
+
+  let deferredPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    btn.style.display = "block";
+  });
+
+  btn.addEventListener("click", async ()=>{
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      btn.style.display = "none";
+    } else if(isIOS){
+      showIOSHint();
+    }
+  });
+
+  window.addEventListener("appinstalled", ()=>{
+    btn.style.display = "none";
+  });
+
+  function showIOSHint(){
+    let hint = document.getElementById("iosInstallHint");
+    if(hint){ hint.style.display = "flex"; return; }
+    hint = document.createElement("div");
+    hint.id = "iosInstallHint";
+    hint.style.cssText = "position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:inherit;";
+    hint.innerHTML = `
+      <div style="background:#111726;color:#fff;width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:20px;text-align:center;">
+        <p style="margin:0 0 10px;font-weight:700;">Install করতে নিচের ধাপগুলো অনুসরণ করুন:</p>
+        <p style="margin:0 0 6px;">1. নিচের Share বাটনে (⬆️) ট্যাপ করুন</p>
+        <p style="margin:0 0 14px;">2. "Add to Home Screen" সিলেক্ট করুন</p>
+        <button id="iosHintClose" style="background:#ffb200;color:#0c1018;font-weight:700;border:none;border-radius:999px;padding:10px 20px;">বুঝেছি</button>
+      </div>`;
+    document.body.appendChild(hint);
+    document.getElementById("iosHintClose").addEventListener("click", ()=>{ hint.style.display = "none"; });
+  }
+
+  // On iOS there's no beforeinstallprompt — show the button directly so users can tap for instructions.
+  if(isIOS){
+    btn.style.display = "block";
+  }
+})();
 </script>
 </body>
 </html>
-
