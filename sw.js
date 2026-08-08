@@ -28,8 +28,16 @@ self.addEventListener("fetch", (event) => {
   const isOwnAsset = url.origin === self.location.origin;
 
   if (isOwnAsset) {
+    // Network-first: always try to get the freshest file first.
+    // Falls back to cache only if offline / network fails.
     event.respondWith(
-      caches.match(event.request).then((cached) => cached || fetch(event.request))
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
   } else {
     event.respondWith(
