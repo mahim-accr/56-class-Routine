@@ -280,6 +280,19 @@
     letter-spacing:1.5px;
   }
 
+  .update-tag{
+    display:block;
+    margin-top:14px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    color:#3f4658;
+    letter-spacing:1.2px;
+  }
+  .update-tag .ver{color:var(--amber-dim); font-weight:700;}
+  .update-tag .lbl2{color:#565e70;}
+
   /* flip-in animation when switching days */
   @keyframes flipIn{
     0%{ transform:rotateX(90deg); opacity:0; }
@@ -405,6 +418,7 @@
   <footer class="note">
     <b>MADE BY MAHIM AHMED RAHIM</b>
     CSE DEPARTMENT
+    <span class="update-tag" id="updateTag"></span>
   </footer>
 </div>
 
@@ -421,6 +435,19 @@ const SUBJECTS = {
   cn:     {name:"Computer Networks", color:"var(--c-cn)"},
   cnlab:  {name:"Computer Networks Lab", color:"var(--c-cnlab)"},
 };
+
+/* ==========================================================
+   LAST UPDATED
+   -----------------------------------------------------------
+   Every time you (Mahim) edit/update this routine file, just
+   change these two values to today's date and time. The
+   footer will show:
+     "Routine Last Updated: <date> at <time>"
+   and it will stay exactly like that until you change it
+   again for the next update.
+   ========================================================== */
+const LAST_UPDATED_DATE = "15 Aug 2026";
+const LAST_UPDATED_TIME = "12:00 PM";
 
  
 const SECTIONS = {
@@ -538,6 +565,13 @@ let currentSection = null;
 let currentGroup = null;
 let activeDow = null;
 let DATA = null;
+
+function renderUpdateTag(){
+  const tag = document.getElementById("updateTag");
+  if(!tag) return;
+  tag.innerHTML = `<span class="lbl2">Routine Last Updated:</span> <span class="ver">${LAST_UPDATED_DATE}</span> <span class="lbl2">at</span> <span class="ver">${LAST_UPDATED_TIME}</span>`;
+}
+renderUpdateTag();
 
 function buildDayNav(){
   dayNav.innerHTML = "";
