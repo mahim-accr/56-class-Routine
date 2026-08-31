@@ -675,6 +675,341 @@
     background:none;
     border:none;
   }
+
+  /* ---------- header icon toolbar ---------- */
+  .icon-toolbar{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    animation:fadeSlideUp .5s ease both .1s;
+  }
+  .icon-btn{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    color:var(--off-day);
+    background:rgba(244,241,228,0.05);
+    border:2px dashed var(--amber-dim);
+    border-radius:12px 4px 12px 4px;
+    padding:6px 10px;
+    cursor:pointer;
+    transition:border-color .18s ease, color .18s ease, background .18s ease;
+  }
+  .icon-btn:hover{ border-color:var(--amber); color:var(--amber); background:rgba(244,241,228,0.09); }
+  .icon-btn.on{ border-style:solid; border-color:var(--amber); color:var(--amber); background:rgba(242,201,76,0.1); }
+  .icon-btn .count{
+    background:var(--amber);
+    color:var(--ink);
+    font-weight:700;
+    border-radius:999px;
+    padding:0 5px;
+    font-size:9px;
+    line-height:14px;
+    min-width:14px;
+    text-align:center;
+  }
+
+  /* ---------- stats strip ---------- */
+  .stats-strip{
+    display:flex;
+    gap:10px;
+    margin:14px 16px 0;
+    animation:fadeSlideUp .4s ease both;
+  }
+  .stat-pill{
+    flex:1;
+    text-align:center;
+    padding:9px 6px;
+    border:2px dashed rgba(244,241,228,0.18);
+    border-radius:10px 3px 10px 3px;
+    font-family:'Space Mono',monospace;
+  }
+  .stat-pill .n{
+    display:block;
+    font-family:'Kalam',cursive;
+    font-weight:700;
+    font-size:18px;
+    color:var(--amber);
+    line-height:1.2;
+  }
+  .stat-pill .l{
+    display:block;
+    font-size:8.5px;
+    letter-spacing:1.2px;
+    color:var(--off-day);
+    margin-top:2px;
+  }
+
+  .countdown{
+    font-weight:700;
+    color:var(--amber);
+    background:rgba(242,201,76,0.12);
+    border-radius:6px;
+    padding:1px 6px;
+    margin-left:2px;
+    letter-spacing:0.5px;
+  }
+
+  /* ---------- day note (general note, below the schedule) ---------- */
+  .day-note{
+    margin:18px 16px 0;
+    border:2px dashed var(--amber-dim);
+    border-radius:16px 6px 16px 6px;
+    padding:14px 16px;
+    background:rgba(244,241,228,0.035);
+    animation:fadeSlideUp .4s ease both;
+  }
+  .day-note .dn-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .day-note .dn-title{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:2px;
+    color:var(--amber);
+  }
+  .day-note .dn-edit-btn{
+    background:none;
+    border:none;
+    color:var(--off-day);
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:1px;
+    text-decoration:underline;
+    text-decoration-style:dashed;
+    cursor:pointer;
+  }
+  .day-note .dn-edit-btn:hover{ color:var(--amber); }
+  .day-note .dn-text{
+    margin-top:8px;
+    font-family:'Kalam',cursive;
+    font-size:15px;
+    line-height:1.5;
+    color:var(--paper);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .day-note .dn-empty{
+    margin-top:8px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--off-day);
+    letter-spacing:0.5px;
+  }
+  .day-note textarea{
+    width:100%;
+    margin-top:10px;
+    background:transparent;
+    border:2px dashed rgba(244,241,228,0.3);
+    border-radius:10px 3px 10px 3px;
+    color:var(--paper);
+    font-family:'Kalam',cursive;
+    font-size:15px;
+    padding:10px;
+    resize:vertical;
+    min-height:70px;
+    outline:none;
+  }
+  .day-note textarea:focus{ border-color:var(--amber); }
+  .day-note .dn-actions{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+  }
+  .day-note .dn-actions button{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    padding:9px 14px;
+    border-radius:10px 3px 10px 3px;
+    border:2px dashed rgba(244,241,228,0.3);
+    background:none;
+    color:var(--paper);
+    cursor:pointer;
+  }
+  .day-note .dn-actions button:hover{ border-color:var(--amber); color:var(--amber); }
+
+  /* ---------- pinned notes overview ---------- */
+  .pinned-list{
+    text-align:left;
+    max-height:52vh;
+    overflow-y:auto;
+    margin-top:6px;
+  }
+  .pinned-item{
+    border:1.5px dashed rgba(244,241,228,0.22);
+    border-radius:10px 3px 10px 3px;
+    padding:10px 12px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .pinned-item:hover{ border-color:var(--amber); background:rgba(244,241,228,0.05); }
+  .pinned-item .pi-day{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    color:var(--amber);
+  }
+  .pinned-item .pi-sub{
+    font-family:'Space Mono',monospace;
+    font-size:9px;
+    letter-spacing:1px;
+    color:var(--off-day);
+    margin-top:3px;
+  }
+  .pinned-item .pi-text{
+    font-family:'Kalam',cursive;
+    font-size:14px;
+    color:var(--paper);
+    margin-top:4px;
+  }
+  .pinned-empty{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--off-day);
+    text-align:center;
+    padding:20px 0;
+  }
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:88px;
+    transform:translateX(-50%) translateY(12px);
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.5px;
+    padding:10px 18px;
+    border-radius:999px;
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+    z-index:9999;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- attendance mini-widget on each row ---------- */
+  .attend-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:7px;
+    flex-wrap:wrap;
+  }
+  .attend-badge{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.5px;
+    padding:2px 7px;
+    border-radius:8px 3px 8px 3px;
+    border:1.5px dashed rgba(244,241,228,0.3);
+    color:var(--off-day);
+  }
+  .attend-badge.good{ color:#8fd08f; border-color:rgba(143,208,143,0.55); }
+  .attend-badge.warn{ color:#f2c14e; border-color:rgba(242,193,78,0.55); }
+  .attend-badge.bad{ color:#f28a8a; border-color:rgba(242,138,138,0.55); }
+  .attend-btn{
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    color:var(--off-day);
+    text-decoration:underline;
+    text-decoration-style:dashed;
+  }
+  .attend-btn:hover{ color:var(--amber); }
+
+  /* ---------- exam / test radar strip ---------- */
+  .radar-strip{
+    margin:14px 16px 0;
+    padding:9px 12px;
+    border:2px dashed #f2965a;
+    border-radius:10px 3px 10px 3px;
+    background:rgba(242,150,90,0.08);
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.5px;
+    color:#f2965a;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    animation:fadeSlideUp .4s ease both;
+  }
+  .radar-strip b{ color:var(--paper); }
+
+  /* ---------- attendance overview overlay ---------- */
+  .attend-list{ text-align:left; max-height:50vh; overflow-y:auto; margin-top:6px; }
+  .attend-list .ai-row{
+    border:1.5px dashed rgba(244,241,228,0.22);
+    border-radius:10px 3px 10px 3px;
+    padding:10px 12px;
+    margin-bottom:10px;
+  }
+  .attend-list .ai-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+  }
+  .attend-list .ai-name{ color:var(--paper); font-weight:700; }
+  .attend-list .ai-pct{ font-weight:700; }
+  .attend-list .ai-bar{
+    height:6px;
+    border-radius:4px;
+    background:rgba(244,241,228,0.12);
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .attend-list .ai-bar-fill{ height:100%; border-radius:4px; }
+  .attend-list .ai-meta{
+    display:flex;
+    justify-content:space-between;
+    margin-top:6px;
+    font-family:'Space Mono',monospace;
+    font-size:9px;
+    color:var(--off-day);
+    letter-spacing:0.5px;
+  }
+  .attend-list .ai-reset{
+    background:none; border:none; color:var(--off-day);
+    text-decoration:underline; text-decoration-style:dashed;
+    cursor:pointer; font-family:'Space Mono',monospace; font-size:9px;
+  }
+  .attend-list .ai-reset:hover{ color:#f28a8a; }
+
+  /* ---------- backup overlay ---------- */
+  .backup-actions{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+  .backup-actions button, .backup-actions label{
+    display:block;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    padding:14px 8px;
+    border-radius:14px 5px 14px 5px;
+    border:2.5px dashed rgba(244,241,228,0.3);
+    background:var(--board-bg-2);
+    color:var(--paper);
+    cursor:pointer;
+    text-align:center;
+  }
+  .backup-actions button:hover, .backup-actions label:hover{ border-color:var(--amber); color:var(--amber); }
+  .backup-actions input[type="file"]{ display:none; }
 </style>
 </head>
 <body>
@@ -687,6 +1022,20 @@
   <div class="select-card" id="noteCardInner"></div>
 </div>
 
+<div id="pinnedOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="pinnedCardInner" style="max-width:440px;"></div>
+</div>
+
+<div id="attendOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="attendCardInner" style="max-width:440px;"></div>
+</div>
+
+<div id="backupOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="backupCardInner" style="max-width:400px;"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
 <div class="board-frame">
   <header class="hero">
     <h1 id="pageTitle">CLASS ROUTINE</h1>
@@ -695,6 +1044,16 @@
       <span id="clock">—</span>
     </div>
     <div id="sectionBadge"></div>
+    <div class="icon-toolbar">
+      <button class="icon-btn" id="pinnedBtn" title="All notes">📌 NOTES <span class="count" id="pinnedCount">0</span></button>
+      <button class="icon-btn" id="notifyBtn" title="Class reminders">🔔 REMIND</button>
+      <button class="icon-btn" id="shareBtn" title="Share today's routine">📤 SHARE</button>
+    </div>
+    <div class="icon-toolbar">
+      <button class="icon-btn" id="attendBtn" title="Attendance tracker">📊 ATTENDANCE</button>
+      <button class="icon-btn" id="calBtn" title="Export to calendar app">📅 CALENDAR</button>
+      <button class="icon-btn" id="backupBtn" title="Backup / restore data">⚙️ BACKUP</button>
+    </div>
   </header>
 
   <nav class="days" id="dayNav"></nav>
@@ -704,7 +1063,13 @@
     <span id="statusText"></span>
   </div>
 
+  <div class="stats-strip" id="statsStrip" style="display:none;"></div>
+
+  <div id="radarStrip"></div>
+
   <div class="board" id="board"></div>
+
+  <div class="day-note" id="dayNoteSection"></div>
 
   <footer class="note">
     <b>MADE BY MAHIM AHMED RAHIM</b>
@@ -869,12 +1234,18 @@ const dayNav = document.getElementById("dayNav");
 const SEC_KEY = "routine-section";
 const GRP_KEY = "routine-group";
 const NOTES_KEY = "routine-notes";
+const DAY_NOTES_KEY = "routine-daynotes";
+const NOTIFY_KEY = "routine-notify-enabled";
+const ATTEND_KEY = "routine-attendance";
 
 let currentSection = null;
 let currentGroup = null;
 let activeDow = null;
 let DATA = null;
 let lastVisibleClasses = [];
+let notifyEnabled = localStorage.getItem(NOTIFY_KEY) === "1";
+let firedReminders = new Set();
+let bannerTarget = null;   // {type:"current"|"next", untilMin: number}
 
 function loadNotes(){
   try{ return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}"); }
@@ -886,6 +1257,50 @@ function saveNotes(notes){
 function noteKey(section, dow, idx){
   return `${section}-${dow}-${idx}`;
 }
+function loadDayNotes(){
+  try{ return JSON.parse(localStorage.getItem(DAY_NOTES_KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function saveDayNotes(notes){
+  localStorage.setItem(DAY_NOTES_KEY, JSON.stringify(notes));
+}
+function dayNoteKey(section, dow){
+  return `${section}-${dow}`;
+}
+
+/* ---------- attendance storage ---------- */
+function loadAttendance(){
+  try{ return JSON.parse(localStorage.getItem(ATTEND_KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function saveAttendance(a){
+  localStorage.setItem(ATTEND_KEY, JSON.stringify(a));
+}
+function attendFor(section, subj){
+  const all = loadAttendance();
+  return (all[section] && all[section][subj]) || {present:0, total:0};
+}
+function markAttendance(subj, status){
+  const all = loadAttendance();
+  if(!all[currentSection]) all[currentSection] = {};
+  if(!all[currentSection][subj]) all[currentSection][subj] = {present:0, total:0};
+  all[currentSection][subj].total++;
+  if(status === "present") all[currentSection][subj].present++;
+  saveAttendance(all);
+}
+function resetAttendance(subj){
+  const all = loadAttendance();
+  if(all[currentSection]) delete all[currentSection][subj];
+  saveAttendance(all);
+}
+function attendBadgeHtml(subj){
+  const a = attendFor(currentSection, subj);
+  if(a.total === 0) return `<span class="attend-badge">no data yet</span>`;
+  const pct = Math.round((a.present/a.total)*100);
+  const cls = pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
+  return `<span class="attend-badge ${cls}">${pct}% (${a.present}/${a.total})</span>`;
+}
+
 function escapeHtml(str){
   return str.replace(/[&<>"']/g, m => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
@@ -923,6 +1338,8 @@ function render(){
   const banner = document.getElementById("statusBanner");
   const statusText = document.getElementById("statusText");
   banner.style.display = "none";
+  const statsStrip = document.getElementById("statsStrip");
+  bannerTarget = null;
 
   const visibleClasses = day.classes
     .map((c, idx) => ({...c, _idx: idx}))
@@ -932,6 +1349,10 @@ function render(){
 
   if(visibleClasses.length === 0){
     board.innerHTML = `<div class="empty-day"><span class="big">NO CLASSES</span>Enjoy your ${day.full}.</div>`;
+    statsStrip.style.display = "none";
+    renderDayNote();
+    renderPinnedCount();
+    renderRadar();
     return;
   }
 
@@ -947,12 +1368,35 @@ function render(){
   if(currentIdx > -1){
     const c = visibleClasses[currentIdx];
     banner.style.display = "flex";
-    statusText.textContent = `IN PROGRESS · ${SUBJECTS[c.subj].name.toUpperCase()} ENDS ${fmt(c.end)}`;
+    bannerTarget = {type:"current", label:SUBJECTS[c.subj].name.toUpperCase(), untilMin:minutes(c.end)};
+    statusText.innerHTML = `IN PROGRESS · ${SUBJECTS[c.subj].name.toUpperCase()} ENDS ${fmt(c.end)}`;
   } else if(nextIdx > -1){
     const c = visibleClasses[nextIdx];
     banner.style.display = "flex";
-    statusText.textContent = `NEXT UP · ${SUBJECTS[c.subj].name.toUpperCase()} AT ${fmt(c.start)}`;
+    bannerTarget = {type:"next", label:SUBJECTS[c.subj].name.toUpperCase(), untilMin:minutes(c.start)};
+    statusText.innerHTML = `NEXT UP · ${SUBJECTS[c.subj].name.toUpperCase()} AT ${fmt(c.start)}`;
   }
+  tickCountdown();
+
+  /* ---- today's stats: class count / total hours / free time ---- */
+  let totalClassMin = 0;
+  visibleClasses.forEach(c => totalClassMin += minutes(c.end) - minutes(c.start));
+  let freeMin = 0;
+  visibleClasses.forEach((c,i)=>{
+    if(i < visibleClasses.length - 1){
+      const gap = minutes(visibleClasses[i+1].start) - minutes(c.end);
+      if(gap > 0) freeMin += gap;
+    }
+  });
+  const span = minutes(visibleClasses[visibleClasses.length-1].end) - minutes(visibleClasses[0].start);
+  const fmtHrs = m => (m/60).toFixed(m % 60 === 0 ? 0 : 1);
+  statsStrip.style.display = "flex";
+  statsStrip.innerHTML = `
+    <div class="stat-pill"><span class="n">${visibleClasses.length}</span><span class="l">CLASSES</span></div>
+    <div class="stat-pill"><span class="n">${fmtHrs(totalClassMin)}h</span><span class="l">CLASS TIME</span></div>
+    <div class="stat-pill"><span class="n">${freeMin > 0 ? fmtHrs(freeMin)+"h" : "0h"}</span><span class="l">FREE GAPS</span></div>
+    <div class="stat-pill"><span class="n">${fmtHrs(span)}h</span><span class="l">CAMPUS SPAN</span></div>
+  `;
 
   const notes = loadNotes();
 
@@ -996,6 +1440,11 @@ function render(){
       <div class="subject-wrap">
         <span class="chip" style="background:${subj.color}">${subj.name}</span>
         <span class="faculty">${c.fac}</span>
+        <div class="attend-row">
+          ${attendBadgeHtml(c.subj)}
+          <button class="attend-btn p" data-subj="${c.subj}">✓ present</button>
+          <button class="attend-btn a" data-subj="${c.subj}">✕ absent</button>
+        </div>
         ${note ? `<span class="note-badge">📌 ${escapeHtml(note)}</span>` : ""}
         <button class="note-btn" data-idx="${c._idx}">${note ? "✎ edit note" : "+ add note"}</button>
       </div>
@@ -1003,9 +1452,480 @@ function render(){
     `;
     board.appendChild(row);
   });
+
+  renderDayNote();
+  renderPinnedCount();
+  renderRadar();
+}
+
+/* =========================================================
+   DAY NOTE — a general note for the whole day, independent
+   of any single class. Saved per section + day, on-device.
+   ========================================================= */
+function renderDayNote(editing){
+  const section = document.getElementById("dayNoteSection");
+  if(!section || !DATA) return;
+  const day = DATA.find(d=>d.dow===activeDow);
+  const key = dayNoteKey(currentSection, day.dow);
+  const dayNotes = loadDayNotes();
+  const existing = dayNotes[key] || "";
+
+  if(editing){
+    section.innerHTML = `
+      <div class="dn-head"><span class="dn-title">✎ DAY NOTE · ${day.full.toUpperCase()}</span></div>
+      <textarea id="dnInput" maxlength="200" placeholder="আজকের জন্য যেকোনো reminder, class test, বা to-do লিখুন...">${escapeHtml(existing)}</textarea>
+      <div class="dn-actions">
+        <button id="dnSaveBtn">SAVE</button>
+        <button id="dnCancelBtn">CANCEL</button>
+        ${existing ? '<button id="dnDeleteBtn">REMOVE</button>' : ""}
+      </div>
+    `;
+    const input = document.getElementById("dnInput");
+    input.focus();
+    document.getElementById("dnSaveBtn").addEventListener("click", ()=>{
+      const val = input.value.trim();
+      const dn = loadDayNotes();
+      if(val){ dn[key] = val; } else { delete dn[key]; }
+      saveDayNotes(dn);
+      renderDayNote(false);
+      renderPinnedCount();
+    });
+    document.getElementById("dnCancelBtn").addEventListener("click", ()=> renderDayNote(false));
+    const delBtn = document.getElementById("dnDeleteBtn");
+    if(delBtn){
+      delBtn.addEventListener("click", ()=>{
+        const dn = loadDayNotes();
+        delete dn[key];
+        saveDayNotes(dn);
+        renderDayNote(false);
+        renderPinnedCount();
+      });
+    }
+    return;
+  }
+
+  section.innerHTML = `
+    <div class="dn-head">
+      <span class="dn-title">📝 DAY NOTE · ${day.full.toUpperCase()}</span>
+      <button class="dn-edit-btn" id="dnEditBtn">${existing ? "✎ edit" : "+ add note"}</button>
+    </div>
+    ${existing
+      ? `<div class="dn-text">${escapeHtml(existing)}</div>`
+      : `<div class="dn-empty">এই দিনের জন্য কোনো সাধারণ নোট নেই। ক্লাসের বাইরের কোনো reminder থাকলে এখানে যোগ করুন।</div>`}
+  `;
+  document.getElementById("dnEditBtn").addEventListener("click", ()=> renderDayNote(true));
+}
+
+/* =========================================================
+   PINNED NOTES OVERVIEW — every class-note and day-note
+   across the whole week, in one place.
+   ========================================================= */
+function collectAllNotes(){
+  const notes = loadNotes();
+  const dayNotes = loadDayNotes();
+  const list = [];
+  if(DATA){
+    DATA.forEach(d=>{
+      const dnKey = dayNoteKey(currentSection, d.dow);
+      if(dayNotes[dnKey]){
+        list.push({dow:d.dow, dayLabel:d.full, sub:"General day note", text:dayNotes[dnKey]});
+      }
+      d.classes.forEach((c, idx)=>{
+        if(c.batch && c.batch !== currentGroup) return;
+        const nKey = noteKey(currentSection, d.dow, idx);
+        if(notes[nKey]){
+          list.push({dow:d.dow, dayLabel:d.full, sub:SUBJECTS[c.subj].name, text:notes[nKey]});
+        }
+      });
+    });
+  }
+  return list;
+}
+
+function renderPinnedCount(){
+  const el = document.getElementById("pinnedCount");
+  if(!el) return;
+  el.textContent = collectAllNotes().length;
+}
+
+function showPinnedOverview(){
+  const overlay = document.getElementById("pinnedOverlay");
+  const inner = document.getElementById("pinnedCardInner");
+  const list = collectAllNotes();
+
+  inner.innerHTML = `
+    <div class="kicker">THIS WEEK</div>
+    <h2>All Notes</h2>
+    <p>Every class test &amp; reminder you've<br>pinned, in one place.</p>
+    <div class="pinned-list" id="pinnedList">
+      ${list.length === 0
+        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাস বা দিনের পাশে "+ add note" চেপে যোগ করুন।</div>`
+        : list.map(n => `
+          <div class="pinned-item" data-dow="${n.dow}">
+            <div class="pi-day">${n.dayLabel.toUpperCase()}</div>
+            <div class="pi-sub">${escapeHtml(n.sub)}</div>
+            <div class="pi-text">📌 ${escapeHtml(n.text)}</div>
+          </div>
+        `).join("")}
+    </div>
+    <button class="back-link" id="pinnedCloseBtn">‹ CLOSE</button>
+  `;
+  overlay.style.display = "flex";
+
+  inner.querySelectorAll(".pinned-item").forEach(item=>{
+    item.addEventListener("click", ()=>{
+      activeDow = parseInt(item.dataset.dow, 10);
+      overlay.style.display = "none";
+      render();
+    });
+  });
+  document.getElementById("pinnedCloseBtn").addEventListener("click", ()=>{
+    overlay.style.display = "none";
+  });
+}
+
+/* =========================================================
+   ATTENDANCE OVERVIEW — per-subject present/total across
+   the whole section, with a colour-coded progress bar.
+   ========================================================= */
+function showAttendOverview(){
+  const overlay = document.getElementById("attendOverlay");
+  const inner = document.getElementById("attendCardInner");
+  const all = loadAttendance()[currentSection] || {};
+  const subjCodes = Object.keys(all).filter(k => all[k].total > 0);
+
+  inner.innerHTML = `
+    <div class="kicker">${currentSection} · GROUP ${currentGroup}</div>
+    <h2>Attendance</h2>
+    <p>Tap ✓ / ✕ under any class to log it.<br>Tracked per subject, on this device.</p>
+    <div class="attend-list" id="attendList">
+      ${subjCodes.length === 0
+        ? `<div class="pinned-empty">এখনো কোনো attendance log নেই। কোনো ক্লাসের নিচে ✓ present বা ✕ absent চাপুন।</div>`
+        : subjCodes.map(code=>{
+            const a = all[code];
+            const pct = Math.round((a.present/a.total)*100);
+            const cls = pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
+            const barColor = pct>=80 ? "#8fd08f" : pct>=70 ? "#f2c14e" : "#f28a8a";
+            const name = SUBJECTS[code] ? SUBJECTS[code].name : code;
+            return `
+              <div class="ai-row">
+                <div class="ai-top">
+                  <span class="ai-name">${escapeHtml(name)}</span>
+                  <span class="ai-pct attend-badge ${cls}">${pct}%</span>
+                </div>
+                <div class="ai-bar"><div class="ai-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+                <div class="ai-meta">
+                  <span>${a.present} present / ${a.total} logged</span>
+                  <button class="ai-reset" data-subj="${code}">reset</button>
+                </div>
+              </div>`;
+          }).join("")}
+    </div>
+    <button class="back-link" id="attendCloseBtn">‹ CLOSE</button>
+  `;
+  overlay.style.display = "flex";
+
+  inner.querySelectorAll(".ai-reset").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      resetAttendance(btn.dataset.subj);
+      showAttendOverview();
+      render();
+    });
+  });
+  document.getElementById("attendCloseBtn").addEventListener("click", ()=>{
+    overlay.style.display = "none";
+  });
+}
+
+/* =========================================================
+   EXAM / TEST RADAR — scans all notes for test/exam keywords
+   and surfaces the nearest upcoming one.
+   ========================================================= */
+const RADAR_KEYWORDS = /test|exam|quiz|viva|ct\b|পরীক্ষা|টেস্ট|কুইজ/i;
+
+function renderRadar(){
+  const strip = document.getElementById("radarStrip");
+  if(!strip) return;
+  const notes = collectAllNotes().filter(n => RADAR_KEYWORDS.test(n.text));
+  if(notes.length === 0){ strip.innerHTML = ""; return; }
+
+  notes.forEach(n => { n.daysUntil = (n.dow - nowDow + 7) % 7; });
+  notes.sort((a,b)=> a.daysUntil - b.daysUntil);
+  const soonest = notes[0];
+  const when = soonest.daysUntil === 0 ? "TODAY" : soonest.daysUntil === 1 ? "TOMORROW" : `IN ${soonest.daysUntil} DAYS`;
+  const extra = notes.length > 1 ? ` · +${notes.length-1} more` : "";
+
+  strip.innerHTML = `
+    <div class="radar-strip">
+      ⚠️ <b>${escapeHtml(soonest.text)}</b> — ${escapeHtml(soonest.sub)} · ${when}${extra}
+    </div>
+  `;
+}
+
+/* =========================================================
+   CALENDAR EXPORT — weekly-recurring .ics file the person
+   can import into Google/Apple/Outlook calendar.
+   ========================================================= */
+function pad2(n){ return n.toString().padStart(2,"0"); }
+
+function nextDateForDow(targetDow){
+  const d = new Date();
+  const diff = (targetDow - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+function icsDate(date, h, m){
+  return `${date.getFullYear()}${pad2(date.getMonth()+1)}${pad2(date.getDate())}T${pad2(h)}${pad2(m)}00`;
+}
+const BYDAY = ["SU","MO","TU","WE","TH","FR","SA"];
+
+function exportCalendar(){
+  let ics = [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Class Routine//EN","CALSCALE:GREGORIAN"
+  ];
+  DATA.forEach(day=>{
+    const classes = day.classes.filter(c => !c.batch || c.batch === currentGroup);
+    classes.forEach((c, idx)=>{
+      const subj = SUBJECTS[c.subj];
+      const startDate = nextDateForDow(day.dow);
+      const dtStart = icsDate(startDate, c.start[0], c.start[1]);
+      const dtEnd = icsDate(startDate, c.end[0], c.end[1]);
+      ics.push(
+        "BEGIN:VEVENT",
+        `UID:${currentSection}-${day.dow}-${idx}-${c.subj}@class-routine`,
+        `DTSTART:${dtStart}`,
+        `DTEND:${dtEnd}`,
+        `RRULE:FREQ=WEEKLY;BYDAY=${BYDAY[day.dow]}`,
+        `SUMMARY:${subj.name} (${currentSection})`,
+        `LOCATION:Room ${c.room}${c.batch ? " " + c.batch : ""}`,
+        `DESCRIPTION:Faculty: ${c.fac}`,
+        "END:VEVENT"
+      );
+    });
+  });
+  ics.push("END:VCALENDAR");
+
+  const blob = new Blob([ics.join("\r\n")], {type:"text/calendar"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${currentSection}-routine.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("📅 Calendar file downloaded — import it into your calendar app");
+}
+
+/* =========================================================
+   BACKUP & RESTORE — download / restore notes, day-notes and
+   attendance as a single JSON file (everything lives only in
+   this browser otherwise, so this is the way to move devices).
+   ========================================================= */
+function showBackupOverlay(){
+  const overlay = document.getElementById("backupOverlay");
+  const inner = document.getElementById("backupCardInner");
+  inner.innerHTML = `
+    <div class="kicker">ON-DEVICE DATA</div>
+    <h2>Backup &amp; Restore</h2>
+    <p>Notes, day-notes and attendance live only<br>on this device. Back them up before you<br>clear your browser or switch phones.</p>
+    <div class="backup-actions">
+      <button id="downloadBackupBtn">⬇ DOWNLOAD BACKUP (.json)</button>
+      <label for="restoreFile">⬆ RESTORE FROM FILE</label>
+      <input type="file" id="restoreFile" accept="application/json">
+    </div>
+    <button class="back-link" id="backupCloseBtn">‹ CLOSE</button>
+  `;
+  overlay.style.display = "flex";
+
+  document.getElementById("downloadBackupBtn").addEventListener("click", ()=>{
+    const payload = {
+      notes: loadNotes(),
+      dayNotes: loadDayNotes(),
+      attendance: loadAttendance(),
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "class-routine-backup.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("⬇ Backup downloaded");
+  });
+
+  document.getElementById("restoreFile").addEventListener("change", (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        if(data.notes) saveNotes({...loadNotes(), ...data.notes});
+        if(data.dayNotes) saveDayNotes({...loadDayNotes(), ...data.dayNotes});
+        if(data.attendance) saveAttendance({...loadAttendance(), ...data.attendance});
+        overlay.style.display = "none";
+        showToast("✅ Backup restored");
+        render();
+      }catch(err){
+        showToast("Could not read that file");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("backupCloseBtn").addEventListener("click", ()=>{
+    overlay.style.display = "none";
+  });
+}
+
+/* =========================================================
+   LIVE COUNTDOWN — ticks the status banner every second
+   without a full re-render.
+   ========================================================= */
+function tickCountdown(){
+  if(!bannerTarget) return;
+  const statusText = document.getElementById("statusText");
+  if(!statusText) return;
+  const n = new Date();
+  const nowSec = n.getHours()*3600 + n.getMinutes()*60 + n.getSeconds();
+  const untilSec = bannerTarget.untilMin * 60;
+  let diff = untilSec - nowSec;
+  if(diff < 0) diff = 0;
+  const mm = Math.floor(diff/60), ss = diff%60;
+  const cd = `${mm}:${ss.toString().padStart(2,"0")}`;
+  if(bannerTarget.type === "current"){
+    statusText.innerHTML = `IN PROGRESS · ${bannerTarget.label} ENDS <span class="countdown">${cd}</span>`;
+  } else {
+    statusText.innerHTML = `NEXT UP · ${bannerTarget.label} IN <span class="countdown">${cd}</span>`;
+  }
+  maybeNotify(diff, bannerTarget);
+}
+setInterval(tickCountdown, 1000);
+
+/* =========================================================
+   CLASS REMINDER NOTIFICATIONS
+   ========================================================= */
+function maybeNotify(diffSec, target){
+  if(!notifyEnabled || target.type !== "next") return;
+  if(diffSec > 300 || diffSec <= 0) return; // fire once inside the 5-min window
+  const fireKey = `${currentSection}-${activeDow}-${target.label}-${target.untilMin}`;
+  if(firedReminders.has(fireKey)) return;
+  firedReminders.add(fireKey);
+  if("Notification" in window && Notification.permission === "granted"){
+    new Notification("Class starting soon", {
+      body: `${target.label} starts at ${fmt([Math.floor(target.untilMin/60), target.untilMin%60])}`,
+      icon: "icon-192.png"
+    });
+  } else {
+    showToast(`⏰ ${target.label} starts soon!`);
+  }
+}
+
+function setupNotifyBtn(){
+  const btn = document.getElementById("notifyBtn");
+  btn.classList.toggle("on", notifyEnabled);
+  btn.addEventListener("click", async ()=>{
+    if(!notifyEnabled){
+      if("Notification" in window && Notification.permission !== "granted"){
+        try{ await Notification.requestPermission(); } catch(e){}
+      }
+      notifyEnabled = true;
+      localStorage.setItem(NOTIFY_KEY, "1");
+      showToast("🔔 Reminders on — you'll be nudged 5 min before class");
+    } else {
+      notifyEnabled = false;
+      localStorage.setItem(NOTIFY_KEY, "0");
+      showToast("🔕 Reminders off");
+    }
+    btn.classList.toggle("on", notifyEnabled);
+  });
+}
+
+/* =========================================================
+   SHARE TODAY'S ROUTINE
+   ========================================================= */
+function buildShareText(){
+  const day = DATA.find(d=>d.dow===activeDow);
+  const lines = [`📋 ${currentSection} · GROUP ${currentGroup} — ${day.full.toUpperCase()}`];
+  if(lastVisibleClasses.length === 0){
+    lines.push("No classes today 🎉");
+  } else {
+    lastVisibleClasses.forEach(c=>{
+      lines.push(`${fmt(c.start)}–${fmt(c.end)}  ${SUBJECTS[c.subj].name}  (Room ${c.room}${c.batch ? " "+c.batch : ""})`);
+    });
+  }
+  const dn = loadDayNotes()[dayNoteKey(currentSection, day.dow)];
+  if(dn) lines.push(`\n📝 Note: ${dn}`);
+  return lines.join("\n");
+}
+
+function setupShareBtn(){
+  document.getElementById("shareBtn").addEventListener("click", async ()=>{
+    const text = buildShareText();
+    if(navigator.share){
+      try{ await navigator.share({title:"Class Routine", text}); return; }
+      catch(e){ /* user cancelled or unsupported, fall through */ }
+    }
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast("📋 Copied today's routine to clipboard");
+    }catch(e){
+      showToast("Could not copy — please try again");
+    }
+  });
+}
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(()=> t.classList.remove("show"), 2600);
+}
+
+/* =========================================================
+   SWIPE BETWEEN DAYS
+   ========================================================= */
+function setupSwipe(){
+  const board = document.getElementById("board");
+  let touchStartX = null, touchStartY = null;
+  board.addEventListener("touchstart", (e)=>{
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, {passive:true});
+  board.addEventListener("touchend", (e)=>{
+    if(touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    touchStartX = null;
+    if(Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy)*1.4) return;
+    const idx = DATA.findIndex(d=>d.dow===activeDow);
+    if(dx < 0 && idx < DATA.length - 1){
+      activeDow = DATA[idx+1].dow; render();
+    } else if(dx > 0 && idx > 0){
+      activeDow = DATA[idx-1].dow; render();
+    }
+  }, {passive:true});
 }
 
 document.getElementById("board").addEventListener("click", (e)=>{
+  const aBtn = e.target.closest(".attend-btn");
+  if(aBtn){
+    const subj = aBtn.dataset.subj;
+    const status = aBtn.classList.contains("p") ? "present" : "absent";
+    markAttendance(subj, status);
+    showToast(status === "present"
+      ? `✓ Marked present — ${SUBJECTS[subj].name}`
+      : `✕ Marked absent — ${SUBJECTS[subj].name}`);
+    render();
+    return;
+  }
+
   const btn = e.target.closest(".note-btn");
   if(!btn) return;
   const idx = parseInt(btn.dataset.idx, 10);
@@ -1136,6 +2056,14 @@ function showSectionStep(){
     btn.addEventListener("click", ()=> showGroupStep(btn.dataset.section));
   });
 }
+
+document.getElementById("pinnedBtn").addEventListener("click", showPinnedOverview);
+document.getElementById("attendBtn").addEventListener("click", showAttendOverview);
+document.getElementById("calBtn").addEventListener("click", exportCalendar);
+document.getElementById("backupBtn").addEventListener("click", showBackupOverlay);
+setupNotifyBtn();
+setupShareBtn();
+setupSwipe();
 
 const savedSection = localStorage.getItem(SEC_KEY);
 const savedGroup = localStorage.getItem(GRP_KEY);
