@@ -408,6 +408,90 @@
   }
   .row.now .gate .num{border-color:var(--amber); color:var(--amber); border-style:solid;}
 
+  /* ---------- break time row ---------- */
+  .row.break{
+    opacity:.72;
+    padding:10px 10px;
+  }
+  .row.break:hover{ transform:none; background:none; }
+  .row.break .time{color:var(--off-day);}
+  .break-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:1.5px;
+    color:var(--off-day);
+    padding:5px 11px;
+    border:2px dashed rgba(244,241,228,0.22);
+    border-radius:12px 4px 12px 4px;
+  }
+
+  /* ---------- test / note badge + button ---------- */
+  .row.has-note{
+    background:rgba(242,148,90,0.06);
+  }
+  .row.has-note::before{
+    content:"";
+    position:absolute;
+    left:0; top:8px; bottom:8px;
+    width:3px;
+    background:var(--c-lpl, #f2965a);
+    border-radius:2px;
+  }
+  .note-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:10px;
+    letter-spacing:1px;
+    color:#f2965a;
+    margin-top:6px;
+    padding:2px 8px;
+    border:1.5px dashed rgba(242,150,90,0.55);
+    border-radius:8px 3px 8px 3px;
+  }
+  .note-btn{
+    display:inline-block;
+    margin-top:6px;
+    background:none;
+    border:none;
+    padding:0;
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:1px;
+    color:var(--off-day);
+    text-decoration:underline;
+    text-decoration-style:dashed;
+    cursor:pointer;
+  }
+  .note-btn:hover{color:var(--amber);}
+
+  .select-card input[type="text"]{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:2px dashed rgba(244,241,228,0.35);
+    color:var(--paper);
+    font-family:'Kalam',cursive;
+    font-size:20px;
+    text-align:center;
+    padding:8px 4px 12px;
+    outline:none;
+    transition:border-color .18s ease;
+  }
+  .select-card input[type="text"]:focus{border-color:var(--amber);}
+  .select-card input[type="text"]::placeholder{color:var(--off-day); opacity:.6;}
+  .select-options.note-actions button{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    padding:14px 8px;
+  }
+
   .status-banner{
     margin:14px 16px 0;
     font-family:'Space Mono',monospace;
@@ -599,6 +683,10 @@
   <div class="select-card" id="selectCardInner"></div>
 </div>
 
+<div id="noteOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="noteCardInner"></div>
+</div>
+
 <div class="board-frame">
   <header class="hero">
     <h1 id="pageTitle">CLASS ROUTINE</h1>
@@ -772,17 +860,37 @@ const nowMin = now.getHours()*60 + now.getMinutes();
 
 const overlay = document.getElementById("selectOverlay");
 const selectCardInner = document.getElementById("selectCardInner");
+const noteOverlay = document.getElementById("noteOverlay");
+const noteCardInner = document.getElementById("noteCardInner");
 const sectionBadge = document.getElementById("sectionBadge");
 const pageTitle = document.getElementById("pageTitle");
 const dayNav = document.getElementById("dayNav");
 
 const SEC_KEY = "routine-section";
 const GRP_KEY = "routine-group";
+const NOTES_KEY = "routine-notes";
 
 let currentSection = null;
 let currentGroup = null;
 let activeDow = null;
 let DATA = null;
+let lastVisibleClasses = [];
+
+function loadNotes(){
+  try{ return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}"); }
+  catch(e){ return {}; }
+}
+function saveNotes(notes){
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+function noteKey(section, dow, idx){
+  return `${section}-${dow}-${idx}`;
+}
+function escapeHtml(str){
+  return str.replace(/[&<>"']/g, m => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[m]));
+}
 
 function renderUpdateTag(){
   const tag = document.getElementById("updateTag");
@@ -816,7 +924,11 @@ function render(){
   const statusText = document.getElementById("statusText");
   banner.style.display = "none";
 
-  const visibleClasses = day.classes.filter(c => !c.batch || c.batch === currentGroup);
+  const visibleClasses = day.classes
+    .map((c, idx) => ({...c, _idx: idx}))
+    .filter(c => !c.batch || c.batch === currentGroup);
+
+  lastVisibleClasses = visibleClasses;
 
   if(visibleClasses.length === 0){
     board.innerHTML = `<div class="empty-day"><span class="big">NO CLASSES</span>Enjoy your ${day.full}.</div>`;
@@ -842,20 +954,115 @@ function render(){
     statusText.textContent = `NEXT UP · ${SUBJECTS[c.subj].name.toUpperCase()} AT ${fmt(c.start)}`;
   }
 
+  const notes = loadNotes();
+
+  /* build a display list that interleaves BREAK TIME rows into any
+     gap between two consecutive classes */
+  const items = [];
   visibleClasses.forEach((c,i)=>{
-    const subj = SUBJECTS[c.subj];
+    items.push({type:"class", data:c, seq:i});
+    if(i < visibleClasses.length - 1){
+      const gapStart = minutes(c.end);
+      const gapEnd = minutes(visibleClasses[i+1].start);
+      if(gapEnd > gapStart){
+        items.push({type:"break", start:c.end, end:visibleClasses[i+1].start});
+      }
+    }
+  });
+
+  items.forEach((item, rowI)=>{
     const row = document.createElement("div");
-    row.className = "row" + (i===currentIdx ? " now" : "");
-    row.style.animationDelay = (i*0.045)+"s";
+    row.style.animationDelay = (rowI*0.045)+"s";
+
+    if(item.type === "break"){
+      row.className = "row break";
+      row.innerHTML = `
+        <div class="time">${fmt(item.start)}<br>– ${fmt(item.end)}</div>
+        <div class="subject-wrap"><span class="break-chip">☕ BREAK TIME</span></div>
+        <div class="gate"></div>
+      `;
+      board.appendChild(row);
+      return;
+    }
+
+    const c = item.data;
+    const i = item.seq;
+    const subj = SUBJECTS[c.subj];
+    const note = notes[noteKey(currentSection, day.dow, c._idx)];
+
+    row.className = "row" + (i===currentIdx ? " now" : "") + (note ? " has-note" : "");
     row.innerHTML = `
       <div class="time"><span class="seq">${(i+1).toString().padStart(2,"0")}</span>${fmt(c.start)}<br>– ${fmt(c.end)}</div>
       <div class="subject-wrap">
         <span class="chip" style="background:${subj.color}">${subj.name}</span>
         <span class="faculty">${c.fac}</span>
+        ${note ? `<span class="note-badge">📌 ${escapeHtml(note)}</span>` : ""}
+        <button class="note-btn" data-idx="${c._idx}">${note ? "✎ edit note" : "+ add note"}</button>
       </div>
       <div class="gate"><span class="lbl">ROOM</span><span class="num">${c.room}${c.batch ? " " + c.batch : ""}</span></div>
     `;
     board.appendChild(row);
+  });
+}
+
+document.getElementById("board").addEventListener("click", (e)=>{
+  const btn = e.target.closest(".note-btn");
+  if(!btn) return;
+  const idx = parseInt(btn.dataset.idx, 10);
+  const c = lastVisibleClasses.find(cl => cl._idx === idx);
+  if(!c) return;
+  showNoteModal(idx, SUBJECTS[c.subj].name);
+});
+
+function showNoteModal(idx, subjName){
+  const day = DATA.find(d=>d.dow===activeDow);
+  const key = noteKey(currentSection, day.dow, idx);
+  const notes = loadNotes();
+  const existing = notes[key] || "";
+
+  noteOverlay.style.display = "flex";
+  noteCardInner.innerHTML = `
+    <div class="kicker">CLASS NOTE</div>
+    <h2>${escapeHtml(subjName)}</h2>
+    <p>Class test, exam বা যেকোনো reminder<br>এখানে লিখে রাখুন। শুধু এই ডিভাইসে সেভ থাকবে।</p>
+    <input id="noteInput" type="text" maxlength="40" placeholder="যেমন: Class Test" value="${escapeHtml(existing)}">
+    <div class="select-options note-actions" style="margin-top:22px;">
+      <button id="noteSaveBtn">SAVE</button>
+      ${existing ? '<button id="noteDeleteBtn">REMOVE</button>' : ""}
+    </div>
+    <button class="back-link" id="noteCancelBtn">‹ CANCEL</button>
+  `;
+
+  const input = document.getElementById("noteInput");
+  input.focus();
+  input.select();
+
+  document.getElementById("noteSaveBtn").addEventListener("click", ()=>{
+    const val = input.value.trim();
+    const notes2 = loadNotes();
+    if(val){ notes2[key] = val; } else { delete notes2[key]; }
+    saveNotes(notes2);
+    noteOverlay.style.display = "none";
+    render();
+  });
+
+  input.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") document.getElementById("noteSaveBtn").click();
+  });
+
+  const delBtn = document.getElementById("noteDeleteBtn");
+  if(delBtn){
+    delBtn.addEventListener("click", ()=>{
+      const notes2 = loadNotes();
+      delete notes2[key];
+      saveNotes(notes2);
+      noteOverlay.style.display = "none";
+      render();
+    });
+  }
+
+  document.getElementById("noteCancelBtn").addEventListener("click", ()=>{
+    noteOverlay.style.display = "none";
   });
 }
 
