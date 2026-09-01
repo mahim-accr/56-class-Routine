@@ -993,23 +993,6 @@
   }
   .attend-list .ai-reset:hover{ color:#f28a8a; }
 
-  /* ---------- backup overlay ---------- */
-  .backup-actions{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
-  .backup-actions button, .backup-actions label{
-    display:block;
-    font-family:'Space Mono',monospace;
-    font-size:12px;
-    letter-spacing:1px;
-    padding:14px 8px;
-    border-radius:14px 5px 14px 5px;
-    border:2.5px dashed rgba(244,241,228,0.3);
-    background:var(--board-bg-2);
-    color:var(--paper);
-    cursor:pointer;
-    text-align:center;
-  }
-  .backup-actions button:hover, .backup-actions label:hover{ border-color:var(--amber); color:var(--amber); }
-  .backup-actions input[type="file"]{ display:none; }
 </style>
 </head>
 <body>
@@ -1030,9 +1013,6 @@
   <div class="select-card" id="attendCardInner" style="max-width:440px;"></div>
 </div>
 
-<div id="backupOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="backupCardInner" style="max-width:400px;"></div>
-</div>
 
 <div id="toast" class="toast"></div>
 
@@ -1047,12 +1027,7 @@
     <div class="icon-toolbar">
       <button class="icon-btn" id="pinnedBtn" title="All notes">📌 NOTES <span class="count" id="pinnedCount">0</span></button>
       <button class="icon-btn" id="notifyBtn" title="Class reminders">🔔 REMIND</button>
-      <button class="icon-btn" id="shareBtn" title="Share today's routine">📤 SHARE</button>
-    </div>
-    <div class="icon-toolbar">
       <button class="icon-btn" id="attendBtn" title="Attendance tracker">📊 ATTENDANCE</button>
-      <button class="icon-btn" id="calBtn" title="Export to calendar app">📅 CALENDAR</button>
-      <button class="icon-btn" id="backupBtn" title="Backup / restore data">⚙️ BACKUP</button>
     </div>
   </header>
 
@@ -1111,8 +1086,8 @@ const SUBJECTS = {
 };
 
  
-const LAST_UPDATED_DATE = "17 Aug 2026";
-const LAST_UPDATED_TIME = "12:14 AM";
+const LAST_UPDATED_DATE = "01 Sept 2026";
+const LAST_UPDATED_TIME = "10:00 AM";
 
  
 const SECTIONS = {
@@ -1663,126 +1638,6 @@ function renderRadar(){
 }
 
 /* =========================================================
-   CALENDAR EXPORT — weekly-recurring .ics file the person
-   can import into Google/Apple/Outlook calendar.
-   ========================================================= */
-function pad2(n){ return n.toString().padStart(2,"0"); }
-
-function nextDateForDow(targetDow){
-  const d = new Date();
-  const diff = (targetDow - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + diff);
-  return d;
-}
-function icsDate(date, h, m){
-  return `${date.getFullYear()}${pad2(date.getMonth()+1)}${pad2(date.getDate())}T${pad2(h)}${pad2(m)}00`;
-}
-const BYDAY = ["SU","MO","TU","WE","TH","FR","SA"];
-
-function exportCalendar(){
-  let ics = [
-    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Class Routine//EN","CALSCALE:GREGORIAN"
-  ];
-  DATA.forEach(day=>{
-    const classes = day.classes.filter(c => !c.batch || c.batch === currentGroup);
-    classes.forEach((c, idx)=>{
-      const subj = SUBJECTS[c.subj];
-      const startDate = nextDateForDow(day.dow);
-      const dtStart = icsDate(startDate, c.start[0], c.start[1]);
-      const dtEnd = icsDate(startDate, c.end[0], c.end[1]);
-      ics.push(
-        "BEGIN:VEVENT",
-        `UID:${currentSection}-${day.dow}-${idx}-${c.subj}@class-routine`,
-        `DTSTART:${dtStart}`,
-        `DTEND:${dtEnd}`,
-        `RRULE:FREQ=WEEKLY;BYDAY=${BYDAY[day.dow]}`,
-        `SUMMARY:${subj.name} (${currentSection})`,
-        `LOCATION:Room ${c.room}${c.batch ? " " + c.batch : ""}`,
-        `DESCRIPTION:Faculty: ${c.fac}`,
-        "END:VEVENT"
-      );
-    });
-  });
-  ics.push("END:VCALENDAR");
-
-  const blob = new Blob([ics.join("\r\n")], {type:"text/calendar"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${currentSection}-routine.ics`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast("📅 Calendar file downloaded — import it into your calendar app");
-}
-
-/* =========================================================
-   BACKUP & RESTORE — download / restore notes, day-notes and
-   attendance as a single JSON file (everything lives only in
-   this browser otherwise, so this is the way to move devices).
-   ========================================================= */
-function showBackupOverlay(){
-  const overlay = document.getElementById("backupOverlay");
-  const inner = document.getElementById("backupCardInner");
-  inner.innerHTML = `
-    <div class="kicker">ON-DEVICE DATA</div>
-    <h2>Backup &amp; Restore</h2>
-    <p>Notes, day-notes and attendance live only<br>on this device. Back them up before you<br>clear your browser or switch phones.</p>
-    <div class="backup-actions">
-      <button id="downloadBackupBtn">⬇ DOWNLOAD BACKUP (.json)</button>
-      <label for="restoreFile">⬆ RESTORE FROM FILE</label>
-      <input type="file" id="restoreFile" accept="application/json">
-    </div>
-    <button class="back-link" id="backupCloseBtn">‹ CLOSE</button>
-  `;
-  overlay.style.display = "flex";
-
-  document.getElementById("downloadBackupBtn").addEventListener("click", ()=>{
-    const payload = {
-      notes: loadNotes(),
-      dayNotes: loadDayNotes(),
-      attendance: loadAttendance(),
-      exportedAt: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "class-routine-backup.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    showToast("⬇ Backup downloaded");
-  });
-
-  document.getElementById("restoreFile").addEventListener("change", (e)=>{
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const data = JSON.parse(reader.result);
-        if(data.notes) saveNotes({...loadNotes(), ...data.notes});
-        if(data.dayNotes) saveDayNotes({...loadDayNotes(), ...data.dayNotes});
-        if(data.attendance) saveAttendance({...loadAttendance(), ...data.attendance});
-        overlay.style.display = "none";
-        showToast("✅ Backup restored");
-        render();
-      }catch(err){
-        showToast("Could not read that file");
-      }
-    };
-    reader.readAsText(file);
-  });
-
-  document.getElementById("backupCloseBtn").addEventListener("click", ()=>{
-    overlay.style.display = "none";
-  });
-}
-
-/* =========================================================
    LIVE COUNTDOWN — ticks the status banner every second
    without a full re-render.
    ========================================================= */
@@ -1842,40 +1697,6 @@ function setupNotifyBtn(){
       showToast("🔕 Reminders off");
     }
     btn.classList.toggle("on", notifyEnabled);
-  });
-}
-
-/* =========================================================
-   SHARE TODAY'S ROUTINE
-   ========================================================= */
-function buildShareText(){
-  const day = DATA.find(d=>d.dow===activeDow);
-  const lines = [`📋 ${currentSection} · GROUP ${currentGroup} — ${day.full.toUpperCase()}`];
-  if(lastVisibleClasses.length === 0){
-    lines.push("No classes today 🎉");
-  } else {
-    lastVisibleClasses.forEach(c=>{
-      lines.push(`${fmt(c.start)}–${fmt(c.end)}  ${SUBJECTS[c.subj].name}  (Room ${c.room}${c.batch ? " "+c.batch : ""})`);
-    });
-  }
-  const dn = loadDayNotes()[dayNoteKey(currentSection, day.dow)];
-  if(dn) lines.push(`\n📝 Note: ${dn}`);
-  return lines.join("\n");
-}
-
-function setupShareBtn(){
-  document.getElementById("shareBtn").addEventListener("click", async ()=>{
-    const text = buildShareText();
-    if(navigator.share){
-      try{ await navigator.share({title:"Class Routine", text}); return; }
-      catch(e){ /* user cancelled or unsupported, fall through */ }
-    }
-    try{
-      await navigator.clipboard.writeText(text);
-      showToast("📋 Copied today's routine to clipboard");
-    }catch(e){
-      showToast("Could not copy — please try again");
-    }
   });
 }
 
@@ -2059,10 +1880,7 @@ function showSectionStep(){
 
 document.getElementById("pinnedBtn").addEventListener("click", showPinnedOverview);
 document.getElementById("attendBtn").addEventListener("click", showAttendOverview);
-document.getElementById("calBtn").addEventListener("click", exportCalendar);
-document.getElementById("backupBtn").addEventListener("click", showBackupOverlay);
 setupNotifyBtn();
-setupShareBtn();
 setupSwipe();
 
 const savedSection = localStorage.getItem(SEC_KEY);
@@ -2140,4 +1958,4 @@ if("serviceWorker" in navigator){
 })();
 </script>
 </body>
-</html>
+  </html>
