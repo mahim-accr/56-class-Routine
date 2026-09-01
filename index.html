@@ -307,6 +307,7 @@
   .row:nth-child(even){ transform:rotate(0.15deg); }
   .row:last-child{border-bottom:none;}
   .row:hover{background:rgba(244,241,228,0.04); transform:translateX(2px) rotate(0deg);}
+  .row.class-row{cursor:pointer;}
 
   .row.now{
     animation:flipIn .38s ease both;
@@ -428,7 +429,7 @@
     border-radius:12px 4px 12px 4px;
   }
 
-  /* ---------- test / note badge + button ---------- */
+  /* ---------- test / note badge ---------- */
   .row.has-note{
     background:rgba(242,148,90,0.06);
   }
@@ -454,21 +455,14 @@
     border:1.5px dashed rgba(242,150,90,0.55);
     border-radius:8px 3px 8px 3px;
   }
-  .note-btn{
+  .tap-hint{
     display:inline-block;
     margin-top:6px;
-    background:none;
-    border:none;
-    padding:0;
     font-family:'Space Mono',monospace;
     font-size:9.5px;
     letter-spacing:1px;
     color:var(--off-day);
-    text-decoration:underline;
-    text-decoration-style:dashed;
-    cursor:pointer;
   }
-  .note-btn:hover{color:var(--amber);}
 
   .select-card input[type="text"]{
     width:100%;
@@ -579,6 +573,7 @@
     z-index:50;
     padding:24px;
     animation:overlayFade .3s ease both;
+    overflow-y:auto;
   }
   @keyframes overlayFade{ 0%{opacity:0;} 100%{opacity:1;} }
   .select-card{
@@ -586,6 +581,7 @@
     width:100%;
     text-align:center;
     animation:cardRise .45s cubic-bezier(.2,.8,.2,1) both;
+    margin:auto;
   }
   @keyframes cardRise{
     0%{ opacity:0; transform:translateY(18px) scale(.98); }
@@ -822,6 +818,7 @@
     display:flex;
     gap:10px;
     margin-top:10px;
+    flex-wrap:wrap;
   }
   .day-note .dn-actions button{
     font-family:'Space Mono',monospace;
@@ -900,14 +897,32 @@
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  /* ---------- attendance mini-widget on each row ---------- */
-  .attend-row{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-top:7px;
-    flex-wrap:wrap;
+  /* ---------- subject detail page ---------- */
+  .subj-meta{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.5px;
+    color:var(--off-day);
+    margin:-16px 0 20px;
   }
+  .subj-section{
+    text-align:left;
+    margin-top:16px;
+    border:2px dashed var(--amber-dim);
+    border-radius:16px 6px 16px 6px;
+    padding:14px 16px;
+    background:rgba(244,241,228,0.035);
+  }
+  .subj-section .dn-title{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:2px;
+    color:var(--amber);
+    display:block;
+    margin-bottom:8px;
+  }
+
+  /* ---------- attendance mini bits (used in subject page + overview) ---------- */
   .attend-badge{
     font-family:'Space Mono',monospace;
     font-size:9.5px;
@@ -920,19 +935,6 @@
   .attend-badge.good{ color:#8fd08f; border-color:rgba(143,208,143,0.55); }
   .attend-badge.warn{ color:#f2c14e; border-color:rgba(242,193,78,0.55); }
   .attend-badge.bad{ color:#f28a8a; border-color:rgba(242,138,138,0.55); }
-  .attend-btn{
-    background:none;
-    border:none;
-    padding:0;
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:0.5px;
-    cursor:pointer;
-    color:var(--off-day);
-    text-decoration:underline;
-    text-decoration-style:dashed;
-  }
-  .attend-btn:hover{ color:var(--amber); }
 
   /* ---------- exam / test radar strip ---------- */
   .radar-strip{
@@ -1001,8 +1003,8 @@
   <div class="select-card" id="selectCardInner"></div>
 </div>
 
-<div id="noteOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="noteCardInner"></div>
+<div id="subjectOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="subjectCardInner" style="max-width:440px;"></div>
 </div>
 
 <div id="pinnedOverlay" class="select-overlay" style="display:none;">
@@ -1200,8 +1202,8 @@ const nowMin = now.getHours()*60 + now.getMinutes();
 
 const overlay = document.getElementById("selectOverlay");
 const selectCardInner = document.getElementById("selectCardInner");
-const noteOverlay = document.getElementById("noteOverlay");
-const noteCardInner = document.getElementById("noteCardInner");
+const subjectOverlay = document.getElementById("subjectOverlay");
+const subjectCardInner = document.getElementById("subjectCardInner");
 const sectionBadge = document.getElementById("sectionBadge");
 const pageTitle = document.getElementById("pageTitle");
 const dayNav = document.getElementById("dayNav");
@@ -1409,19 +1411,17 @@ function render(){
     const subj = SUBJECTS[c.subj];
     const note = notes[noteKey(currentSection, day.dow, c._idx)];
 
-    row.className = "row" + (i===currentIdx ? " now" : "") + (note ? " has-note" : "");
+    row.className = "row class-row" + (i===currentIdx ? " now" : "") + (note ? " has-note" : "");
+    row.dataset.idx = c._idx;
     row.innerHTML = `
       <div class="time"><span class="seq">${(i+1).toString().padStart(2,"0")}</span>${fmt(c.start)}<br>– ${fmt(c.end)}</div>
       <div class="subject-wrap">
         <span class="chip" style="background:${subj.color}">${subj.name}</span>
         <span class="faculty">${c.fac}</span>
-        <div class="attend-row">
+        <div>
           ${attendBadgeHtml(c.subj)}
-          <button class="attend-btn p" data-subj="${c.subj}">✓ present</button>
-          <button class="attend-btn a" data-subj="${c.subj}">✕ absent</button>
         </div>
-        ${note ? `<span class="note-badge">📌 ${escapeHtml(note)}</span>` : ""}
-        <button class="note-btn" data-idx="${c._idx}">${note ? "✎ edit note" : "+ add note"}</button>
+        ${note ? `<span class="note-badge">📌 ${escapeHtml(note)}</span>` : `<span class="tap-hint">tap for notes &amp; attendance ›</span>`}
       </div>
       <div class="gate"><span class="lbl">ROOM</span><span class="num">${c.room}${c.batch ? " " + c.batch : ""}</span></div>
     `;
@@ -1431,6 +1431,101 @@ function render(){
   renderDayNote();
   renderPinnedCount();
   renderRadar();
+}
+
+/* =========================================================
+   SUBJECT DETAIL PAGE — tapping any class opens this. It
+   holds the note editor and the attendance tracker for that
+   specific class slot, together on one page.
+   ========================================================= */
+function showSubjectDetail(idx){
+  const day = DATA.find(d=>d.dow===activeDow);
+  const c = lastVisibleClasses.find(cl => cl._idx === idx);
+  if(!c) return;
+  const subj = SUBJECTS[c.subj];
+  const key = noteKey(currentSection, day.dow, idx);
+  const notes = loadNotes();
+  const existingNote = notes[key] || "";
+  const a = attendFor(currentSection, c.subj);
+  const pct = a.total ? Math.round((a.present/a.total)*100) : null;
+  const cls = pct===null ? "" : pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
+  const barColor = pct===null ? "" : pct>=80 ? "#8fd08f" : pct>=70 ? "#f2c14e" : "#f28a8a";
+
+  subjectOverlay.style.display = "flex";
+  subjectCardInner.innerHTML = `
+    <div class="kicker">${day.full.toUpperCase()} · ${fmt(c.start)} – ${fmt(c.end)}</div>
+    <h2 style="margin-bottom:6px;">${escapeHtml(subj.name)}</h2>
+    <div class="subj-meta">${escapeHtml(c.fac)} · Room ${escapeHtml(c.room)}${c.batch ? " (" + escapeHtml(c.batch) + ")" : ""}</div>
+
+    <div class="subj-section">
+      <span class="dn-title">📝 NOTE</span>
+      <textarea id="subjNoteInput" maxlength="60" placeholder="Class test, exam বা যেকোনো reminder...">${escapeHtml(existingNote)}</textarea>
+      <div class="dn-actions">
+        <button id="subjNoteSave">SAVE</button>
+        ${existingNote ? '<button id="subjNoteRemove">REMOVE</button>' : ""}
+      </div>
+    </div>
+
+    <div class="subj-section">
+      <span class="dn-title">📊 ATTENDANCE</span>
+      ${pct===null
+        ? `<div class="dn-empty">এখনো কোনো attendance log নেই।</div>`
+        : `<div class="ai-bar"><div class="ai-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+           <div class="ai-meta" style="margin-top:8px;">
+             <span class="attend-badge ${cls}">${pct}%</span>
+             <span>${a.present} present / ${a.total} logged</span>
+           </div>`}
+      <div class="dn-actions">
+        <button id="subjPresentBtn">✓ PRESENT</button>
+        <button id="subjAbsentBtn">✕ ABSENT</button>
+        ${a.total > 0 ? '<button id="subjResetBtn">RESET</button>' : ""}
+      </div>
+    </div>
+
+    <button class="back-link" id="subjCloseBtn">‹ CLOSE</button>
+  `;
+
+  document.getElementById("subjNoteSave").addEventListener("click", ()=>{
+    const val = document.getElementById("subjNoteInput").value.trim();
+    const n2 = loadNotes();
+    if(val){ n2[key] = val; } else { delete n2[key]; }
+    saveNotes(n2);
+    render();
+    showSubjectDetail(idx);
+  });
+  const rmBtn = document.getElementById("subjNoteRemove");
+  if(rmBtn){
+    rmBtn.addEventListener("click", ()=>{
+      const n2 = loadNotes();
+      delete n2[key];
+      saveNotes(n2);
+      render();
+      showSubjectDetail(idx);
+    });
+  }
+  document.getElementById("subjPresentBtn").addEventListener("click", ()=>{
+    markAttendance(c.subj, "present");
+    showToast(`✓ Marked present — ${subj.name}`);
+    render();
+    showSubjectDetail(idx);
+  });
+  document.getElementById("subjAbsentBtn").addEventListener("click", ()=>{
+    markAttendance(c.subj, "absent");
+    showToast(`✕ Marked absent — ${subj.name}`);
+    render();
+    showSubjectDetail(idx);
+  });
+  const resetBtn = document.getElementById("subjResetBtn");
+  if(resetBtn){
+    resetBtn.addEventListener("click", ()=>{
+      resetAttendance(c.subj);
+      render();
+      showSubjectDetail(idx);
+    });
+  }
+  document.getElementById("subjCloseBtn").addEventListener("click", ()=>{
+    subjectOverlay.style.display = "none";
+  });
 }
 
 /* =========================================================
@@ -1509,7 +1604,7 @@ function collectAllNotes(){
         if(c.batch && c.batch !== currentGroup) return;
         const nKey = noteKey(currentSection, d.dow, idx);
         if(notes[nKey]){
-          list.push({dow:d.dow, dayLabel:d.full, sub:SUBJECTS[c.subj].name, text:notes[nKey]});
+          list.push({dow:d.dow, dayLabel:d.full, sub:SUBJECTS[c.subj].name, text:notes[nKey], idx});
         }
       });
     });
@@ -1534,9 +1629,9 @@ function showPinnedOverview(){
     <p>Every class test &amp; reminder you've<br>pinned, in one place.</p>
     <div class="pinned-list" id="pinnedList">
       ${list.length === 0
-        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাস বা দিনের পাশে "+ add note" চেপে যোগ করুন।</div>`
+        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাসে ট্যাপ করে বা দিনের নোটে "+ add note" চেপে যোগ করুন।</div>`
         : list.map(n => `
-          <div class="pinned-item" data-dow="${n.dow}">
+          <div class="pinned-item" data-dow="${n.dow}" ${n.idx!==undefined ? `data-idx="${n.idx}"` : ""}>
             <div class="pi-day">${n.dayLabel.toUpperCase()}</div>
             <div class="pi-sub">${escapeHtml(n.sub)}</div>
             <div class="pi-text">📌 ${escapeHtml(n.text)}</div>
@@ -1552,6 +1647,9 @@ function showPinnedOverview(){
       activeDow = parseInt(item.dataset.dow, 10);
       overlay.style.display = "none";
       render();
+      if(item.dataset.idx !== undefined){
+        showSubjectDetail(parseInt(item.dataset.idx, 10));
+      }
     });
   });
   document.getElementById("pinnedCloseBtn").addEventListener("click", ()=>{
@@ -1572,10 +1670,10 @@ function showAttendOverview(){
   inner.innerHTML = `
     <div class="kicker">${currentSection} · GROUP ${currentGroup}</div>
     <h2>Attendance</h2>
-    <p>Tap ✓ / ✕ under any class to log it.<br>Tracked per subject, on this device.</p>
+    <p>Tap any class in the routine to log<br>attendance. Tracked per subject, on this device.</p>
     <div class="attend-list" id="attendList">
       ${subjCodes.length === 0
-        ? `<div class="pinned-empty">এখনো কোনো attendance log নেই। কোনো ক্লাসের নিচে ✓ present বা ✕ absent চাপুন।</div>`
+        ? `<div class="pinned-empty">এখনো কোনো attendance log নেই। কোনো ক্লাসে ট্যাপ করে ✓ present বা ✕ absent চাপুন।</div>`
         : subjCodes.map(code=>{
             const a = all[code];
             const pct = Math.round((a.present/a.total)*100);
@@ -1735,77 +1833,10 @@ function setupSwipe(){
 }
 
 document.getElementById("board").addEventListener("click", (e)=>{
-  const aBtn = e.target.closest(".attend-btn");
-  if(aBtn){
-    const subj = aBtn.dataset.subj;
-    const status = aBtn.classList.contains("p") ? "present" : "absent";
-    markAttendance(subj, status);
-    showToast(status === "present"
-      ? `✓ Marked present — ${SUBJECTS[subj].name}`
-      : `✕ Marked absent — ${SUBJECTS[subj].name}`);
-    render();
-    return;
-  }
-
-  const btn = e.target.closest(".note-btn");
-  if(!btn) return;
-  const idx = parseInt(btn.dataset.idx, 10);
-  const c = lastVisibleClasses.find(cl => cl._idx === idx);
-  if(!c) return;
-  showNoteModal(idx, SUBJECTS[c.subj].name);
+  const row = e.target.closest(".row.class-row");
+  if(!row) return;
+  showSubjectDetail(parseInt(row.dataset.idx, 10));
 });
-
-function showNoteModal(idx, subjName){
-  const day = DATA.find(d=>d.dow===activeDow);
-  const key = noteKey(currentSection, day.dow, idx);
-  const notes = loadNotes();
-  const existing = notes[key] || "";
-
-  noteOverlay.style.display = "flex";
-  noteCardInner.innerHTML = `
-    <div class="kicker">CLASS NOTE</div>
-    <h2>${escapeHtml(subjName)}</h2>
-    <p>Class test, exam বা যেকোনো reminder<br>এখানে লিখে রাখুন। শুধু এই ডিভাইসে সেভ থাকবে।</p>
-    <input id="noteInput" type="text" maxlength="40" placeholder="যেমন: Class Test" value="${escapeHtml(existing)}">
-    <div class="select-options note-actions" style="margin-top:22px;">
-      <button id="noteSaveBtn">SAVE</button>
-      ${existing ? '<button id="noteDeleteBtn">REMOVE</button>' : ""}
-    </div>
-    <button class="back-link" id="noteCancelBtn">‹ CANCEL</button>
-  `;
-
-  const input = document.getElementById("noteInput");
-  input.focus();
-  input.select();
-
-  document.getElementById("noteSaveBtn").addEventListener("click", ()=>{
-    const val = input.value.trim();
-    const notes2 = loadNotes();
-    if(val){ notes2[key] = val; } else { delete notes2[key]; }
-    saveNotes(notes2);
-    noteOverlay.style.display = "none";
-    render();
-  });
-
-  input.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter") document.getElementById("noteSaveBtn").click();
-  });
-
-  const delBtn = document.getElementById("noteDeleteBtn");
-  if(delBtn){
-    delBtn.addEventListener("click", ()=>{
-      const notes2 = loadNotes();
-      delete notes2[key];
-      saveNotes(notes2);
-      noteOverlay.style.display = "none";
-      render();
-    });
-  }
-
-  document.getElementById("noteCancelBtn").addEventListener("click", ()=>{
-    noteOverlay.style.display = "none";
-  });
-}
 
 function tickClock(){
   const d = new Date();
