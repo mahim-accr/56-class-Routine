@@ -34,6 +34,17 @@
     --c-lpl:#f2965a;
     --c-cn:#f4dd6e;
     --c-cnlab:#e39fb5;
+
+    /* fixed UI-accent colors (independent of day theme, keeps controls visually distinct) */
+    --accent-notes:#f2a6c5;
+    --accent-remind:#f2c94c;
+    --accent-attend:#8ecbf2;
+    --accent-next:#f2685c;
+    --accent-daynav:#b98af2;
+    --accent-stat-classes:#8ecbf2;
+    --accent-stat-time:#9bd67f;
+    --accent-stat-free:#f2a6c5;
+    --accent-stat-span:#f2965a;
   }
 
    
@@ -243,12 +254,12 @@
   }
   nav.days button:hover{color:var(--paper);}
   nav.days button .full{display:block; font-family:'Kalam',cursive; font-weight:700; font-size:15px; letter-spacing:0; margin-top:2px; color:inherit;}
-  nav.days button.active{color:var(--amber);}
+  nav.days button.active{color:var(--accent-daynav);}
   nav.days button.active::before{
     content:"";
     position:absolute;
     left:6%; right:6%; bottom:4px; top:2px;
-    border:2.5px solid var(--amber);
+    border:2.5px solid var(--accent-daynav);
     border-radius:52% 48% 47% 53% / 58% 44% 56% 42%;
     transform:rotate(-2deg);
     opacity:0;
@@ -262,7 +273,7 @@
   }
   nav.days button .dot{
     display:none;
-    width:6px;height:6px;border-radius:50%;background:var(--amber);
+    width:6px;height:6px;border-radius:50%;background:var(--accent-daynav);
     position:absolute; top:6px; right:16px;
     animation:blink 1.4s infinite;
   }
@@ -297,30 +308,44 @@
     grid-template-columns:78px 1fr 62px;
     gap:12px;
     align-items:center;
-    padding:14px 10px;
-    border-bottom:2px dashed rgba(244,241,228,0.14);
+    padding:16px 14px;
+    margin-bottom:12px;
     position:relative;
-    border-radius:6px;
-    transition:background .2s ease, transform .2s ease;
+    border-radius:18px 6px 18px 6px;
+    border:2px dashed rgba(244,241,228,0.16);
+    background:
+      linear-gradient(155deg, rgba(244,241,228,0.05), rgba(244,241,228,0.008) 60%),
+      rgba(0,0,0,0.08);
+    box-shadow:0 6px 18px -6px rgba(0,0,0,0.35);
+    transition:background .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .row:nth-child(odd){ transform:rotate(-0.15deg); }
-  .row:nth-child(even){ transform:rotate(0.15deg); }
-  .row:last-child{border-bottom:none;}
-  .row:hover{background:rgba(244,241,228,0.04); transform:translateX(2px) rotate(0deg);}
+  .row:nth-child(odd){ transform:rotate(-0.25deg); }
+  .row:nth-child(even){ transform:rotate(0.25deg); }
+  .row:last-child{margin-bottom:0;}
+  .row:hover{
+    background:
+      linear-gradient(155deg, rgba(244,241,228,0.08), rgba(244,241,228,0.015) 60%),
+      rgba(0,0,0,0.1);
+    border-color:rgba(244,241,228,0.3);
+    transform:translateX(2px) rotate(0deg);
+    box-shadow:0 10px 24px -8px rgba(0,0,0,0.45);
+  }
   .row.class-row{cursor:pointer;}
 
   .row.now{
     animation:flipIn .38s ease both;
-    background:rgba(242,201,76,0.07);
-    border-radius:10px;
-    box-shadow:0 0 0 2px transparent;
+    background:
+      linear-gradient(155deg, rgba(242,201,76,0.14), rgba(242,201,76,0.03) 60%),
+      rgba(0,0,0,0.08);
+    border-color:var(--amber);
+    box-shadow:0 10px 26px -8px rgba(242,201,76,0.25);
   }
   .row.now::before{
     content:"";
     position:absolute;
     inset:2px;
     border:2.5px dashed var(--amber);
-    border-radius:14px 6px 14px 6px;
+    border-radius:16px 6px 16px 6px;
     opacity:.85;
     animation:chalkWobble 3.4s ease-in-out infinite;
     pointer-events:none;
@@ -365,14 +390,14 @@
     font-size:12.5px;
     letter-spacing:0.1px;
     color:var(--ink);
-    padding:5px 11px;
+    padding:6px 12px;
     border-radius:12px 4px 12px 4px;
     line-height:1.2;
     max-width:100%;
-    box-shadow:0 2px 6px -2px rgba(0,0,0,0.35);
+    box-shadow:0 4px 12px -3px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
     transition:transform .15s ease, box-shadow .15s ease;
   }
-  .row:hover .chip{ transform:translateY(-1px) rotate(-0.6deg); box-shadow:0 4px 10px -2px rgba(0,0,0,0.4); }
+  .row:hover .chip{ transform:translateY(-1px) rotate(-0.6deg); box-shadow:0 6px 16px -3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
   .chip::after{
     content:"";
     position:absolute; inset:0;
@@ -389,7 +414,7 @@
     font-family:'Space Mono',monospace;
     font-size:10.5px;
     color:var(--off-day);
-    margin-top:6px;
+    margin-top:7px;
     letter-spacing:1px;
   }
 
@@ -397,24 +422,28 @@
     font-family:'Space Mono',monospace;
     text-align:right;
   }
-  .gate .lbl{display:block; font-size:8.5px; color:var(--off-day); letter-spacing:1.5px; margin-bottom:2px;}
+  .gate .lbl{display:block; font-size:8.5px; color:var(--off-day); letter-spacing:1.5px; margin-bottom:3px;}
   .gate .num{
     font-size:14px;
     font-weight:700;
     color:var(--paper);
-    border:2px dashed rgba(244,241,228,0.3);
+    border:2px dashed rgba(244,241,228,0.32);
+    background:rgba(0,0,0,0.15);
     border-radius:8px 3px 8px 3px;
-    padding:3px 7px;
+    padding:4px 8px;
     display:inline-block;
+    box-shadow:inset 0 1px 0 rgba(244,241,228,0.06);
   }
-  .row.now .gate .num{border-color:var(--amber); color:var(--amber); border-style:solid;}
+  .row.now .gate .num{border-color:var(--amber); color:var(--amber); border-style:solid; background:rgba(242,201,76,0.1);}
 
   /* ---------- break time row ---------- */
   .row.break{
     opacity:.72;
-    padding:10px 10px;
+    padding:12px 14px;
+    background:rgba(0,0,0,0.05);
+    box-shadow:none;
   }
-  .row.break:hover{ transform:none; background:none; }
+  .row.break:hover{ transform:none; background:rgba(0,0,0,0.05); border-color:rgba(244,241,228,0.16); box-shadow:none; }
   .row.break .time{color:var(--off-day);}
   .break-chip{
     display:inline-flex;
@@ -431,15 +460,10 @@
 
   /* ---------- test / note badge ---------- */
   .row.has-note{
-    background:rgba(242,148,90,0.06);
-  }
-  .row.has-note::before{
-    content:"";
-    position:absolute;
-    left:0; top:8px; bottom:8px;
-    width:3px;
-    background:var(--c-lpl, #f2965a);
-    border-radius:2px;
+    border-color:color-mix(in srgb, var(--c-lpl, #f2965a) 55%, transparent);
+    background:
+      linear-gradient(155deg, rgba(242,150,90,0.1), rgba(244,241,228,0.008) 60%),
+      rgba(0,0,0,0.08);
   }
   .note-badge{
     display:inline-flex;
@@ -491,19 +515,19 @@
     font-family:'Space Mono',monospace;
     font-size:11px;
     letter-spacing:1px;
-    color:var(--amber);
+    color:var(--accent-next);
     display:flex;
     align-items:center;
     gap:8px;
     padding:8px 12px;
-    background:rgba(242,201,76,0.08);
-    border:2px dashed var(--amber-dim);
+    background:color-mix(in srgb, var(--accent-next) 10%, transparent);
+    border:2px dashed color-mix(in srgb, var(--accent-next) 55%, transparent);
     border-radius:10px 3px 10px 3px;
     animation:fadeSlideUp .4s ease both;
   }
   .status-banner .blink{
-    width:6px;height:6px;border-radius:50%;background:var(--amber);
-    box-shadow:0 0 8px rgba(242,201,76,0.7);
+    width:6px;height:6px;border-radius:50%;background:var(--accent-next);
+    box-shadow:0 0 8px color-mix(in srgb, var(--accent-next) 70%, transparent);
     animation:blink 1.4s infinite;
   }
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
@@ -709,6 +733,18 @@
     text-align:center;
   }
 
+  /* distinct accent per toolbar action, so they read apart at a glance */
+  #pinnedBtn{ border-color:color-mix(in srgb, var(--accent-notes) 55%, transparent); color:var(--accent-notes); }
+  #pinnedBtn:hover{ border-color:var(--accent-notes); background:color-mix(in srgb, var(--accent-notes) 12%, transparent); }
+  #pinnedBtn .count{ background:var(--accent-notes); color:var(--ink); }
+
+  #notifyBtn{ border-color:color-mix(in srgb, var(--accent-remind) 55%, transparent); color:var(--accent-remind); }
+  #notifyBtn:hover{ border-color:var(--accent-remind); background:color-mix(in srgb, var(--accent-remind) 12%, transparent); }
+  #notifyBtn.on{ border-style:solid; border-color:var(--accent-remind); color:var(--accent-remind); background:color-mix(in srgb, var(--accent-remind) 14%, transparent); }
+
+  #attendBtn{ border-color:color-mix(in srgb, var(--accent-attend) 55%, transparent); color:var(--accent-attend); }
+  #attendBtn:hover{ border-color:var(--accent-attend); background:color-mix(in srgb, var(--accent-attend) 12%, transparent); }
+
   /* ---------- stats strip ---------- */
   .stats-strip{
     display:flex;
@@ -739,25 +775,49 @@
     color:var(--off-day);
     margin-top:2px;
   }
+  .stat-pill:nth-child(1) .n{ color:var(--accent-stat-classes); }
+  .stat-pill:nth-child(2) .n{ color:var(--accent-stat-time); }
+  .stat-pill:nth-child(3) .n{ color:var(--accent-stat-free); }
+  .stat-pill:nth-child(4) .n{ color:var(--accent-stat-span); }
 
   .countdown{
     font-weight:700;
-    color:var(--amber);
-    background:rgba(242,201,76,0.12);
+    color:var(--accent-next);
+    background:color-mix(in srgb, var(--accent-next) 16%, transparent);
     border-radius:6px;
     padding:1px 6px;
     margin-left:2px;
     letter-spacing:0.5px;
   }
 
-  /* ---------- day note (general note, below the schedule) ---------- */
+  /* ---------- overall note (one general note, independent of the day tab) ---------- */
   .day-note{
-    margin:18px 16px 0;
-    border:2px dashed var(--amber-dim);
-    border-radius:16px 6px 16px 6px;
-    padding:14px 16px;
-    background:rgba(244,241,228,0.035);
+    margin:22px 16px 0;
+    position:relative;
+    border-radius:18px 6px 18px 6px;
+    padding:16px 18px 18px;
+    background:
+      linear-gradient(155deg, rgba(244,241,228,0.09), rgba(244,241,228,0.02) 55%),
+      var(--board-bg-2);
+    border:2px solid color-mix(in srgb, var(--accent-notes) 45%, transparent);
+    box-shadow:
+      0 10px 26px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(244,241,228,0.06);
+    transform:rotate(-0.4deg);
     animation:fadeSlideUp .4s ease both;
+    transition:background-color .8s ease, border-color .8s ease;
+  }
+  .day-note::before{
+    /* little pin / tape accent at the top */
+    content:"";
+    position:absolute;
+    top:-9px; left:22px;
+    width:34px; height:16px;
+    background:var(--accent-notes);
+    opacity:.9;
+    border-radius:3px;
+    transform:rotate(-4deg);
+    box-shadow:0 3px 6px rgba(0,0,0,0.3);
   }
   .day-note .dn-head{
     display:flex;
@@ -769,55 +829,59 @@
     font-family:'Space Mono',monospace;
     font-size:10.5px;
     letter-spacing:2px;
-    color:var(--amber);
+    color:var(--accent-notes);
+    font-weight:700;
   }
   .day-note .dn-edit-btn{
-    background:none;
-    border:none;
-    color:var(--off-day);
+    background:rgba(244,241,228,0.06);
+    border:1.5px dashed color-mix(in srgb, var(--accent-notes) 45%, transparent);
+    color:var(--accent-notes);
     font-family:'Space Mono',monospace;
     font-size:9.5px;
     letter-spacing:1px;
-    text-decoration:underline;
-    text-decoration-style:dashed;
+    padding:5px 10px;
+    border-radius:8px 3px 8px 3px;
     cursor:pointer;
+    transition:border-color .2s ease, background .2s ease, color .2s ease;
   }
-  .day-note .dn-edit-btn:hover{ color:var(--amber); }
+  .day-note .dn-edit-btn:hover{ border-color:var(--accent-notes); background:rgba(244,241,228,0.1); }
   .day-note .dn-text{
-    margin-top:8px;
+    margin-top:10px;
     font-family:'Kalam',cursive;
-    font-size:15px;
-    line-height:1.5;
+    font-size:16px;
+    line-height:1.6;
     color:var(--paper);
     white-space:pre-wrap;
     word-break:break-word;
   }
   .day-note .dn-empty{
-    margin-top:8px;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
+    margin-top:10px;
+    font-family:'Kalam',cursive;
+    font-size:14px;
     color:var(--off-day);
-    letter-spacing:0.5px;
+    letter-spacing:0.2px;
+    line-height:1.5;
   }
   .day-note textarea{
     width:100%;
-    margin-top:10px;
-    background:transparent;
-    border:2px dashed rgba(244,241,228,0.3);
-    border-radius:10px 3px 10px 3px;
+    margin-top:12px;
+    background:rgba(0,0,0,0.12);
+    border:2px dashed color-mix(in srgb, var(--accent-notes) 45%, transparent);
+    border-radius:12px 3px 12px 3px;
     color:var(--paper);
     font-family:'Kalam',cursive;
-    font-size:15px;
-    padding:10px;
+    font-size:16px;
+    padding:12px;
     resize:vertical;
-    min-height:70px;
+    min-height:80px;
     outline:none;
+    transition:border-color .2s ease;
   }
-  .day-note textarea:focus{ border-color:var(--amber); }
+  .day-note textarea:focus{ border-color:var(--accent-notes); }
   .day-note .dn-actions{
     display:flex;
     gap:10px;
-    margin-top:10px;
+    margin-top:12px;
     flex-wrap:wrap;
   }
   .day-note .dn-actions button{
@@ -830,8 +894,14 @@
     background:none;
     color:var(--paper);
     cursor:pointer;
+    transition:border-color .2s ease, color .2s ease;
   }
-  .day-note .dn-actions button:hover{ border-color:var(--amber); color:var(--amber); }
+  .day-note .dn-actions button:hover{ border-color:var(--accent-notes); color:var(--accent-notes); }
+  .day-note .dn-actions button#dnSaveBtn{
+    border-color:var(--accent-notes);
+    color:var(--accent-notes);
+    background:color-mix(in srgb, var(--accent-notes) 14%, transparent);
+  }
 
   /* ---------- pinned notes overview ---------- */
   .pinned-list{
@@ -907,19 +977,86 @@
   }
   .subj-section{
     text-align:left;
-    margin-top:16px;
-    border:2px dashed var(--amber-dim);
-    border-radius:16px 6px 16px 6px;
-    padding:14px 16px;
-    background:rgba(244,241,228,0.035);
+    margin-top:18px;
+    position:relative;
+    border-radius:18px 6px 18px 6px;
+    padding:16px 18px 18px;
+    background:
+      linear-gradient(155deg, rgba(244,241,228,0.09), rgba(244,241,228,0.02) 55%),
+      var(--board-bg-2);
+    border:2px solid var(--amber-dim);
+    box-shadow:
+      0 10px 26px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(244,241,228,0.06);
+    transform:rotate(-0.35deg);
+    transition:background-color .8s ease, border-color .8s ease;
+  }
+  .subj-section:nth-of-type(2){ transform:rotate(0.35deg); }
+  .subj-section::before{
+    content:"";
+    position:absolute;
+    top:-9px; left:22px;
+    width:34px; height:16px;
+    background:var(--amber);
+    opacity:.9;
+    border-radius:3px;
+    transform:rotate(-4deg);
+    box-shadow:0 3px 6px rgba(0,0,0,0.3);
   }
   .subj-section .dn-title{
     font-family:'Space Mono',monospace;
     font-size:10.5px;
     letter-spacing:2px;
     color:var(--amber);
+    font-weight:700;
     display:block;
-    margin-bottom:8px;
+    margin-bottom:10px;
+  }
+  .subj-section textarea{
+    width:100%;
+    background:rgba(0,0,0,0.12);
+    border:2px dashed var(--amber-dim);
+    border-radius:12px 3px 12px 3px;
+    color:var(--paper);
+    font-family:'Kalam',cursive;
+    font-size:16px;
+    padding:12px;
+    resize:vertical;
+    min-height:70px;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  .subj-section textarea:focus{ border-color:var(--amber); }
+  .subj-section .dn-actions{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+  .subj-section .dn-actions button{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    padding:9px 14px;
+    border-radius:10px 3px 10px 3px;
+    border:2px dashed rgba(244,241,228,0.3);
+    background:none;
+    color:var(--paper);
+    cursor:pointer;
+    transition:border-color .2s ease, color .2s ease, background .2s ease;
+  }
+  .subj-section .dn-actions button:hover{ border-color:var(--amber); color:var(--amber); }
+  .subj-section .dn-actions button#subjNoteSave,
+  .subj-section .dn-actions button#subjPresentBtn{
+    border-color:var(--amber);
+    color:var(--amber);
+    background:rgba(242,201,76,0.1);
+  }
+  .subj-section .dn-empty{
+    font-family:'Kalam',cursive;
+    font-size:14px;
+    color:var(--off-day);
+    line-height:1.5;
   }
 
   /* ---------- attendance mini bits (used in subject page + overview) ---------- */
@@ -1046,7 +1183,7 @@
 
   <div class="board" id="board"></div>
 
-  <div class="day-note" id="dayNoteSection"></div>
+  <div class="day-note" id="overallNoteSection"></div>
 
   <footer class="note">
     <b>MADE BY MAHIM AHMED RAHIM</b>
@@ -1120,8 +1257,8 @@ const SECTIONS = {
         {start:[14,0], end:[16,0], subj:"ailab", fac:"DB, FUZ", room:"805"},
       ]},
       { dow:4, label:"THU", full:"Thursday", classes:[]},
-      { dow:3, label:"FRI", full:"Friday", classes:[]},
-      { dow:3, label:"SAT", full:"Saturday", classes:[]},
+      { dow:5, label:"FRI", full:"Friday", classes:[]},
+      { dow:6, label:"SAT", full:"Saturday", classes:[]},
     ]
   },
   "5B": {
@@ -1151,8 +1288,8 @@ const SECTIONS = {
         {start:[12,0], end:[13,0], subj:"ai", fac:"MDF", room:"602"},
         {start:[13,0], end:[15,0], subj:"cnlab", fac:"TSC", room:"504", batch:"B2"},
       ]},
-      { dow:3, label:"FRI", full:"Friday", classes:[]},
-      { dow:3, label:"SAT", full:"Saturday", classes:[]},
+      { dow:5, label:"FRI", full:"Friday", classes:[]},
+      { dow:6, label:"SAT", full:"Saturday", classes:[]},
     ]
   },
   "5C": {
@@ -1182,8 +1319,8 @@ const SECTIONS = {
         {start:[11,0], end:[14,0], subj:"spd", fac:"SAC", room:"805"},
       ]},
       { dow:4, label:"THU", full:"Thursday", classes:[]},
-      { dow:3, label:"FRI", full:"Friday", classes:[]},
-      { dow:3, label:"SAT", full:"Saturday", classes:[]},
+      { dow:5, label:"FRI", full:"Friday", classes:[]},
+      { dow:6, label:"SAT", full:"Saturday", classes:[]},
     ]
   },
 };
@@ -1211,7 +1348,7 @@ const dayNav = document.getElementById("dayNav");
 const SEC_KEY = "routine-section";
 const GRP_KEY = "routine-group";
 const NOTES_KEY = "routine-notes";
-const DAY_NOTES_KEY = "routine-daynotes";
+const OVERALL_NOTES_KEY = "routine-overallnote";
 const NOTIFY_KEY = "routine-notify-enabled";
 const ATTEND_KEY = "routine-attendance";
 
@@ -1234,15 +1371,15 @@ function saveNotes(notes){
 function noteKey(section, dow, idx){
   return `${section}-${dow}-${idx}`;
 }
-function loadDayNotes(){
-  try{ return JSON.parse(localStorage.getItem(DAY_NOTES_KEY) || "{}"); }
+function loadOverallNotes(){
+  try{ return JSON.parse(localStorage.getItem(OVERALL_NOTES_KEY) || "{}"); }
   catch(e){ return {}; }
 }
-function saveDayNotes(notes){
-  localStorage.setItem(DAY_NOTES_KEY, JSON.stringify(notes));
+function saveOverallNotes(notes){
+  localStorage.setItem(OVERALL_NOTES_KEY, JSON.stringify(notes));
 }
-function dayNoteKey(section, dow){
-  return `${section}-${dow}`;
+function overallNoteKey(section){
+  return `${section}`;
 }
 
 /* ---------- attendance storage ---------- */
@@ -1327,7 +1464,7 @@ function render(){
   if(visibleClasses.length === 0){
     board.innerHTML = `<div class="empty-day"><span class="big">NO CLASSES</span>Enjoy your ${day.full}.</div>`;
     statsStrip.style.display = "none";
-    renderDayNote();
+    renderOverallNote();
     renderPinnedCount();
     renderRadar();
     return;
@@ -1428,7 +1565,7 @@ function render(){
     board.appendChild(row);
   });
 
-  renderDayNote();
+  renderOverallNote();
   renderPinnedCount();
   renderRadar();
 }
@@ -1529,21 +1666,21 @@ function showSubjectDetail(idx){
 }
 
 /* =========================================================
-   DAY NOTE — a general note for the whole day, independent
-   of any single class. Saved per section + day, on-device.
+   OVERALL NOTE — a single freeform note, independent of the
+   day tab. Saved per section, on-device. Shows the same on
+   every day so it works like a sticky note for the whole week.
    ========================================================= */
-function renderDayNote(editing){
-  const section = document.getElementById("dayNoteSection");
-  if(!section || !DATA) return;
-  const day = DATA.find(d=>d.dow===activeDow);
-  const key = dayNoteKey(currentSection, day.dow);
-  const dayNotes = loadDayNotes();
-  const existing = dayNotes[key] || "";
+function renderOverallNote(editing){
+  const section = document.getElementById("overallNoteSection");
+  if(!section || !currentSection) return;
+  const key = overallNoteKey(currentSection);
+  const overallNotes = loadOverallNotes();
+  const existing = overallNotes[key] || "";
 
   if(editing){
     section.innerHTML = `
-      <div class="dn-head"><span class="dn-title">✎ DAY NOTE · ${day.full.toUpperCase()}</span></div>
-      <textarea id="dnInput" maxlength="200" placeholder="আজকের জন্য যেকোনো reminder, class test, বা to-do লিখুন...">${escapeHtml(existing)}</textarea>
+      <div class="dn-head"><span class="dn-title">✎ MY NOTE</span></div>
+      <textarea id="dnInput" maxlength="300" placeholder="যেকোনো reminder, class test, to-do বা যা খুশি লিখুন — সব দিনেই দেখা যাবে...">${escapeHtml(existing)}</textarea>
       <div class="dn-actions">
         <button id="dnSaveBtn">SAVE</button>
         <button id="dnCancelBtn">CANCEL</button>
@@ -1554,20 +1691,20 @@ function renderDayNote(editing){
     input.focus();
     document.getElementById("dnSaveBtn").addEventListener("click", ()=>{
       const val = input.value.trim();
-      const dn = loadDayNotes();
-      if(val){ dn[key] = val; } else { delete dn[key]; }
-      saveDayNotes(dn);
-      renderDayNote(false);
+      const on = loadOverallNotes();
+      if(val){ on[key] = val; } else { delete on[key]; }
+      saveOverallNotes(on);
+      renderOverallNote(false);
       renderPinnedCount();
     });
-    document.getElementById("dnCancelBtn").addEventListener("click", ()=> renderDayNote(false));
+    document.getElementById("dnCancelBtn").addEventListener("click", ()=> renderOverallNote(false));
     const delBtn = document.getElementById("dnDeleteBtn");
     if(delBtn){
       delBtn.addEventListener("click", ()=>{
-        const dn = loadDayNotes();
-        delete dn[key];
-        saveDayNotes(dn);
-        renderDayNote(false);
+        const on = loadOverallNotes();
+        delete on[key];
+        saveOverallNotes(on);
+        renderOverallNote(false);
         renderPinnedCount();
       });
     }
@@ -1576,30 +1713,32 @@ function renderDayNote(editing){
 
   section.innerHTML = `
     <div class="dn-head">
-      <span class="dn-title">📝 DAY NOTE · ${day.full.toUpperCase()}</span>
+      <span class="dn-title">📝 MY NOTE</span>
       <button class="dn-edit-btn" id="dnEditBtn">${existing ? "✎ edit" : "+ add note"}</button>
     </div>
     ${existing
       ? `<div class="dn-text">${escapeHtml(existing)}</div>`
-      : `<div class="dn-empty">এই দিনের জন্য কোনো সাধারণ নোট নেই। ক্লাসের বাইরের কোনো reminder থাকলে এখানে যোগ করুন।</div>`}
+      : `<div class="dn-empty">কোনো নোট নেই। ক্লাসের বাইরে যেকোনো reminder, to-do বা যা খুশি এখানে লিখে রাখো — এটা সব দিনেই দেখা যাবে।</div>`}
   `;
-  document.getElementById("dnEditBtn").addEventListener("click", ()=> renderDayNote(true));
+  document.getElementById("dnEditBtn").addEventListener("click", ()=> renderOverallNote(true));
 }
 
 /* =========================================================
-   PINNED NOTES OVERVIEW — every class-note and day-note
-   across the whole week, in one place.
+   PINNED NOTES OVERVIEW — every class-note and the overall
+   note, in one place.
    ========================================================= */
 function collectAllNotes(){
   const notes = loadNotes();
-  const dayNotes = loadDayNotes();
+  const overallNotes = loadOverallNotes();
   const list = [];
+  if(currentSection){
+    const ovKey = overallNoteKey(currentSection);
+    if(overallNotes[ovKey]){
+      list.push({overall:true, dayLabel:"Pinned", sub:"My note", text:overallNotes[ovKey]});
+    }
+  }
   if(DATA){
     DATA.forEach(d=>{
-      const dnKey = dayNoteKey(currentSection, d.dow);
-      if(dayNotes[dnKey]){
-        list.push({dow:d.dow, dayLabel:d.full, sub:"General day note", text:dayNotes[dnKey]});
-      }
       d.classes.forEach((c, idx)=>{
         if(c.batch && c.batch !== currentGroup) return;
         const nKey = noteKey(currentSection, d.dow, idx);
@@ -1629,9 +1768,9 @@ function showPinnedOverview(){
     <p>Every class test &amp; reminder you've<br>pinned, in one place.</p>
     <div class="pinned-list" id="pinnedList">
       ${list.length === 0
-        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাসে ট্যাপ করে বা দিনের নোটে "+ add note" চেপে যোগ করুন।</div>`
+        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাসে ট্যাপ করে বা নিচের নোট কার্ডে "+ add note" চেপে যোগ করুন।</div>`
         : list.map(n => `
-          <div class="pinned-item" data-dow="${n.dow}" ${n.idx!==undefined ? `data-idx="${n.idx}"` : ""}>
+          <div class="pinned-item" ${n.dow!==undefined ? `data-dow="${n.dow}"` : ""} ${n.idx!==undefined ? `data-idx="${n.idx}"` : ""}>
             <div class="pi-day">${n.dayLabel.toUpperCase()}</div>
             <div class="pi-sub">${escapeHtml(n.sub)}</div>
             <div class="pi-text">📌 ${escapeHtml(n.text)}</div>
@@ -1644,11 +1783,13 @@ function showPinnedOverview(){
 
   inner.querySelectorAll(".pinned-item").forEach(item=>{
     item.addEventListener("click", ()=>{
-      activeDow = parseInt(item.dataset.dow, 10);
       overlay.style.display = "none";
-      render();
-      if(item.dataset.idx !== undefined){
-        showSubjectDetail(parseInt(item.dataset.idx, 10));
+      if(item.dataset.dow !== undefined && item.dataset.dow !== ""){
+        activeDow = parseInt(item.dataset.dow, 10);
+        render();
+        if(item.dataset.idx !== undefined){
+          showSubjectDetail(parseInt(item.dataset.idx, 10));
+        }
       }
     });
   });
@@ -1719,7 +1860,7 @@ const RADAR_KEYWORDS = /test|exam|quiz|viva|ct\b|পরীক্ষা|টেস
 function renderRadar(){
   const strip = document.getElementById("radarStrip");
   if(!strip) return;
-  const notes = collectAllNotes().filter(n => RADAR_KEYWORDS.test(n.text));
+  const notes = collectAllNotes().filter(n => n.dow !== undefined && RADAR_KEYWORDS.test(n.text));
   if(notes.length === 0){ strip.innerHTML = ""; return; }
 
   notes.forEach(n => { n.daysUntil = (n.dow - nowDow + 7) % 7; });
