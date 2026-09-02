@@ -1,47 +1,79 @@
-const CACHE_NAME = "class-routine-dark-v1";
-const ASSETS = [
+
+
+const CACHE_NAME = "routine-cache-v2";
+
+// Adjust this list if your files have different names on the
+// server. Keep it relative to where sw.js itself is served from.
+const CORE_ASSETS = [
   "./",
-  "./index.html",
+  "./routine.html",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./icon-192.png"
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        CORE_ASSETS.map((url) =>
+          cache.add(url).catch((err) => {
+            // Don't let one missing/renamed file break the whole install.
+            console.warn("[sw] could not cache", url, err);
+          })
+        )
+      )
+    )
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+        )
+      )
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-  const isOwnAsset = url.origin === self.location.origin;
+  const req = event.request;
 
-  if (isOwnAsset) {
-    // Network-first: always try to get the freshest file first.
-    // Falls back to cache only if offline / network fails.
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-  } else {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
-  }
+  // Only handle GET requests; let everything else pass through normally.
+  if (req.method !== "GET") return;
+
+  // Only handle same-origin requests (don't try to cache/intercept
+  // third-party requests like Google Fonts — those already fail
+  // gracefully in the page itself when offline).
+  if (new URL(req.url).origin !== self.location.origin) return;
+
+  event.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      try {
+        const networkResponse = await fetch(req);
+        if (networkResponse && networkResponse.status === 200) {
+          cache.put(req, networkResponse.clone());
+        }
+        return networkResponse;
+      } catch (err) {
+        // No network (data off, wifi off, or no signal) — serve
+        // whatever we have cached instead.
+        const cached = await cache.match(req);
+        if (cached) return cached;
+
+        // Navigating to a page we've never cached and have no
+        // network for — fall back to the main app shell so the
+        // user still lands inside the app instead of an error page.
+        if (req.mode === "navigate") {
+          const shell = await cache.match("./routine.html");
+          if (shell) return shell;
+        }
+        throw err;
+      }
+    })
+  );
 });
