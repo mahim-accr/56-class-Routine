@@ -2,7 +2,7 @@
   "name": "Class Routine",
   "short_name": "Routine",
   "description": "Weekly class routine, notes, and attendance tracker.",
-  "start_url": "./routine.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
