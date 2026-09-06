@@ -1132,9 +1132,201 @@
   }
   .attend-list .ai-reset:hover{ color:#f28a8a; }
 
+  /* =========================================================
+     SPLASH INTRO SCREEN
+     ========================================================= */
+  #splashScreen{
+    position:fixed;
+    inset:0;
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 30%, rgba(242,201,76,0.10), transparent 65%),
+      var(--board-bg);
+    transition:opacity .5s ease, visibility .5s ease;
+  }
+  #splashScreen.hide{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  #splashScreen::after{
+    content:"";
+    position:absolute;
+    inset:-10% -10%;
+    pointer-events:none;
+    opacity:.5;
+    background-image:
+      radial-gradient(rgba(244,241,228,0.5) 1px, transparent 1.4px),
+      radial-gradient(rgba(244,241,228,0.35) 1px, transparent 1.4px);
+    background-size:140px 140px, 210px 210px;
+    background-position:0 0, 60px 90px;
+  }
+  .splash-inner{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    transform:translate(0,0) rotate(0deg);
+    opacity:1;
+  }
+  .splash-inner.pulled{
+    animation:splashPullAway .65s cubic-bezier(.5,-0.2,.7,.4) forwards;
+  }
+  @keyframes splashPullAway{
+    0%{ transform:translate(0,0) rotate(0deg); opacity:1; }
+    100%{ transform:translate(70vw,-10vh) rotate(14deg); opacity:0; }
+  }
+  .splash-title{
+    display:flex;
+    gap:1px;
+    font-family:'Kalam',cursive;
+    font-weight:700;
+    font-size:clamp(26px,7.6vw,42px);
+    letter-spacing:1px;
+    color:var(--paper);
+    text-shadow:0 4px 14px rgba(0,0,0,0.3);
+  }
+  .splash-title .letter{
+    display:inline-block;
+    opacity:0;
+    transform:scale(0) translateY(24px) rotate(-18deg);
+    animation:letterPop .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .splash-title .letter.amber{ color:var(--amber); }
+  .splash-title .space{ width:10px; }
+  @keyframes letterPop{
+    0%{ opacity:0; transform:scale(0) translateY(24px) rotate(-18deg); }
+    55%{ opacity:1; transform:scale(1.18) translateY(-6px) rotate(5deg); }
+    100%{ opacity:1; transform:scale(1) translateY(0) rotate(0deg); }
+  }
+  .splash-rope{
+    width:2px;
+    height:22px;
+    background:repeating-linear-gradient(var(--off-day),var(--off-day) 4px,transparent 4px,transparent 8px);
+    opacity:0;
+    animation:fadeSlideUp .3s ease forwards;
+    animation-delay:.9s;
+  }
+  .splash-mascot-wrap{
+    opacity:0;
+    transform:translateY(30px) scale(.7);
+    animation:mascotIn .55s cubic-bezier(.34,1.56,.64,1) forwards;
+    animation-delay:.85s;
+  }
+  @keyframes mascotIn{
+    0%{ opacity:0; transform:translateY(30px) scale(.7); }
+    100%{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .splash-mascot-wrap.running svg{
+    animation:mascotRun .35s ease-in-out infinite;
+  }
+  @keyframes mascotRun{
+    0%,100%{ transform:rotate(-4deg) translateY(0); }
+    50%{ transform:rotate(4deg) translateY(-4px); }
+  }
+  .splash-loading{
+    margin-top:22px;
+    width:150px;
+    height:8px;
+    border-radius:999px;
+    border:2px dashed rgba(244,241,228,0.3);
+    overflow:hidden;
+    background:rgba(0,0,0,0.15);
+  }
+  .splash-loading-bar{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background:linear-gradient(90deg, var(--amber-dim), var(--amber));
+    transition:width 1.5s cubic-bezier(.4,0,.2,1);
+  }
+  .splash-tag{
+    margin-top:12px;
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:2px;
+    color:var(--off-day);
+    opacity:0;
+    animation:fadeSlideUp .4s ease forwards;
+    animation-delay:1.05s;
+  }
+  #splashConfetti{
+    position:fixed;
+    inset:0;
+    z-index:1000000;
+    pointer-events:none;
+    overflow:hidden;
+    display:none;
+  }
+  .confetti-piece{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:8px;
+    height:8px;
+    opacity:1;
+    animation-name:confettiBurst;
+    animation-timing-function:cubic-bezier(.15,.6,.4,1);
+    animation-fill-mode:forwards;
+  }
+  @keyframes confettiBurst{
+    0%{ transform:translate(-50%,-50%) translate(0,0) rotate(0deg); opacity:1; }
+    100%{ transform:translate(-50%,-50%) translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity:0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #splashScreen{ transition:opacity .01ms; }
+    .splash-title .letter, .splash-rope, .splash-mascot-wrap, .splash-tag{
+      animation-duration:.01ms !important;
+      animation-delay:0s !important;
+    }
+    .splash-inner.pulled{ animation-duration:.01ms !important; }
+    .confetti-piece{ display:none; }
+  }
+
 </style>
 </head>
 <body>
+
+<div id="splashScreen">
+  <div class="splash-inner" id="splashInner">
+    <div class="splash-title" id="splashTitle"></div>
+    <div class="splash-rope" id="splashRope"></div>
+    <div class="splash-mascot-wrap" id="splashMascotWrap">
+      <svg width="96" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="90" rx="26" ry="5" fill="rgba(0,0,0,0.25)"/>
+        <path d="M50 14c-20 0-33 15-33 36 0 19 12 33 33 33s33-14 33-33c0-21-13-36-33-36z" fill="#7fd6e0"/>
+        <circle cx="27" cy="24" r="9" fill="#7fd6e0"/>
+        <circle cx="73" cy="24" r="9" fill="#7fd6e0"/>
+        <circle cx="27" cy="24" r="4.5" fill="#ffffff"/>
+        <circle cx="73" cy="24" r="4.5" fill="#ffffff"/>
+        <circle cx="50" cy="8" r="5" fill="#ffe28a"/>
+        <line x1="50" y1="13" x2="50" y2="20" stroke="#c9a94a" stroke-width="2"/>
+        <ellipse cx="50" cy="58" rx="27" ry="24" fill="#ffffff"/>
+        <circle cx="39" cy="52" r="6.5" fill="#20343a"/>
+        <circle cx="61" cy="52" r="6.5" fill="#20343a"/>
+        <circle cx="41.5" cy="49.5" r="2" fill="#ffffff"/>
+        <circle cx="63.5" cy="49.5" r="2" fill="#ffffff"/>
+        <circle cx="31" cy="62" r="4.5" fill="#ffb3c0" opacity="0.7"/>
+        <circle cx="69" cy="62" r="4.5" fill="#ffb3c0" opacity="0.7"/>
+        <path d="M42 66q8 7 16 0" stroke="#20343a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M22 78q28 14 56 0" stroke="#3fb6c4" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse cx="16" cy="70" rx="7" ry="9" fill="#7fd6e0" transform="rotate(-18 16 70)"/>
+        <ellipse cx="84" cy="70" rx="7" ry="9" fill="#7fd6e0" transform="rotate(18 84 70)"/>
+      </svg>
+    </div>
+    <div class="splash-loading">
+      <div class="splash-loading-bar" id="splashLoadingBar"></div>
+    </div>
+    <div class="splash-tag">GETTING YOUR ROUTINE READY…</div>
+  </div>
+</div>
+<div id="splashConfetti"></div>
 
 <div id="selectOverlay" class="select-overlay" style="display:none;">
   <div class="select-card" id="selectCardInner"></div>
@@ -1194,6 +1386,111 @@
 
 <script>
  
+/* =========================================================
+   SPLASH INTRO — letters pop in, mascot runs off pulling the
+   title away, loading bar fills, confetti bursts, then the
+   real app underneath is revealed.
+   ========================================================= */
+(function runSplash(){
+  const splash = document.getElementById("splashScreen");
+  const titleEl = document.getElementById("splashTitle");
+  const mascotWrap = document.getElementById("splashMascotWrap");
+  const innerEl = document.getElementById("splashInner");
+  const barEl = document.getElementById("splashLoadingBar");
+  const confettiHost = document.getElementById("splashConfetti");
+  if(!splash || !titleEl) return;
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TEXT = "CLASS ROUTINE";
+  let delay = 0;
+  const stepMs = reduced ? 0 : 65;
+
+  [...TEXT].forEach((ch)=>{
+    if(ch === " "){
+      const sp = document.createElement("span");
+      sp.className = "space";
+      titleEl.appendChild(sp);
+      return;
+    }
+    const span = document.createElement("span");
+    span.className = "letter";
+    span.textContent = ch;
+    span.style.animationDelay = delay + "ms";
+    titleEl.appendChild(span);
+    delay += stepMs;
+  });
+  // color the second word ("ROUTINE") amber, like the main header treats it
+  const secondWordStart = TEXT.indexOf(" ") + 1;
+  let charCount = 0;
+  titleEl.querySelectorAll(".letter, .space").forEach((el)=>{
+    if(charCount >= secondWordStart && el.classList.contains("letter")){
+      el.classList.add("amber");
+    }
+    charCount++;
+  });
+
+  const letterCount = [...TEXT].filter(c=>c!==" ").length;
+  const lettersDoneAt = reduced ? 0 : letterCount * stepMs + 500;
+
+  function spawnConfetti(){
+    confettiHost.style.display = "block";
+    confettiHost.innerHTML = "";
+    const colors = ["#f2c94c","#7fd6e0","#f2a6c5","#9bd67f","#f2965a","#c9a6f2"];
+    const count = reduced ? 0 : 46;
+    for(let i=0;i<count;i++){
+      const p = document.createElement("div");
+      p.className = "confetti-piece";
+      const angle = Math.random()*Math.PI*2;
+      const dist = 120 + Math.random()*220;
+      const tx = Math.cos(angle)*dist;
+      const ty = Math.sin(angle)*dist - 60;
+      const rot = (Math.random()*720 - 360) + "deg";
+      p.style.setProperty("--tx", tx.toFixed(0)+"px");
+      p.style.setProperty("--ty", ty.toFixed(0)+"px");
+      p.style.setProperty("--rot", rot);
+      p.style.background = colors[i % colors.length];
+      p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+      p.style.width = p.style.height = (6 + Math.random()*6).toFixed(0)+"px";
+      const dur = (0.7 + Math.random()*0.5).toFixed(2)+"s";
+      p.style.animationDuration = dur;
+      confettiHost.appendChild(p);
+    }
+  }
+
+  function finishSplash(){
+    splash.classList.add("hide");
+    setTimeout(()=>{
+      splash.style.display = "none";
+      confettiHost.style.display = "none";
+      confettiHost.innerHTML = "";
+    }, reduced ? 10 : 550);
+  }
+
+  if(reduced){
+    finishSplash();
+    return;
+  }
+
+  // start the loading bar filling roughly alongside the letters + pull
+  setTimeout(()=>{ barEl.style.width = "100%"; }, 150);
+
+  // once letters are in, pull the whole title+mascot away
+  setTimeout(()=>{
+    mascotWrap.classList.add("running");
+    innerEl.classList.add("pulled");
+  }, lettersDoneAt);
+
+  // confetti bursts right as the title exits
+  setTimeout(()=>{
+    spawnConfetti();
+  }, lettersDoneAt + 550);
+
+  // reveal the real app after the burst settles
+  setTimeout(()=>{
+    finishSplash();
+  }, lettersDoneAt + 1350);
+})();
+
 const THEME_BY_DOW = ["sun","mon","tue","wed","thu","fri","sat"];
 const THEME_COLORS = {
   sun:"#1c3a30", mon:"#182849", tue:"#3a1c28",
@@ -1225,7 +1522,7 @@ const SUBJECTS = {
 };
 
  
-const LAST_UPDATED_DATE = "01 Sept 2026";
+const LAST_UPDATED_DATE = "06 Sept 2026";
 const LAST_UPDATED_TIME = "10:00 AM";
 
  
