@@ -1,6 +1,6 @@
 
 
-const CACHE_NAME = "routine-cache-v2";
+const CACHE_NAME = "routine-cache-v3";
 
 // Adjust this list if your files have different names on the
 // server. Keep it relative to where sw.js itself is served from.
