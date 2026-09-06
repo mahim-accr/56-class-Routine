@@ -1133,160 +1133,94 @@
   .attend-list .ai-reset:hover{ color:#f28a8a; }
 
   /* =========================================================
-     SPLASH INTRO SCREEN
+     SPLASH INTRO — table lamp with a pull cord. Drag the bead
+     down to switch the light on, then the title pops in
+     letter by letter, then a confetti burst hands off to the
+     main app.
      ========================================================= */
+  html.splash-lock, html.splash-lock body{ overflow:hidden; height:100%; }
+
   #splashScreen{
     position:fixed;
     inset:0;
-    z-index:999999;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    background:
-      radial-gradient(ellipse 60% 45% at 50% 30%, rgba(242,201,76,0.10), transparent 65%),
-      var(--board-bg);
-    transition:opacity .5s ease, visibility .5s ease;
-  }
-  #splashScreen.hide{
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
-  }
-  #splashScreen::after{
-    content:"";
-    position:absolute;
-    inset:-10% -10%;
-    pointer-events:none;
-    opacity:.5;
-    background-image:
-      radial-gradient(rgba(244,241,228,0.5) 1px, transparent 1.4px),
-      radial-gradient(rgba(244,241,228,0.35) 1px, transparent 1.4px);
-    background-size:140px 140px, 210px 210px;
-    background-position:0 0, 60px 90px;
-  }
-  .splash-inner{
-    position:relative;
+    z-index:2000;
     display:flex;
     flex-direction:column;
     align-items:center;
+    justify-content:center;
     gap:6px;
-    transform:translate(0,0) rotate(0deg);
-    opacity:1;
-  }
-  .splash-inner.pulled{
-    animation:splashPullAway .65s cubic-bezier(.5,-0.2,.7,.4) forwards;
-  }
-  @keyframes splashPullAway{
-    0%{ transform:translate(0,0) rotate(0deg); opacity:1; }
-    100%{ transform:translate(70vw,-10vh) rotate(14deg); opacity:0; }
-  }
-  .splash-title{
-    display:flex;
-    gap:1px;
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:clamp(26px,7.6vw,42px);
-    letter-spacing:1px;
-    color:var(--paper);
-    text-shadow:0 4px 14px rgba(0,0,0,0.3);
-  }
-  .splash-title .letter{
-    display:inline-block;
-    opacity:0;
-    transform:scale(0) translateY(24px) rotate(-18deg);
-    animation:letterPop .5s cubic-bezier(.34,1.56,.64,1) forwards;
-  }
-  .splash-title .letter.amber{ color:var(--amber); }
-  .splash-title .space{ width:10px; }
-  @keyframes letterPop{
-    0%{ opacity:0; transform:scale(0) translateY(24px) rotate(-18deg); }
-    55%{ opacity:1; transform:scale(1.18) translateY(-6px) rotate(5deg); }
-    100%{ opacity:1; transform:scale(1) translateY(0) rotate(0deg); }
-  }
-  .splash-rope{
-    width:2px;
-    height:22px;
-    background:repeating-linear-gradient(var(--off-day),var(--off-day) 4px,transparent 4px,transparent 8px);
-    opacity:0;
-    animation:fadeSlideUp .3s ease forwards;
-    animation-delay:.9s;
-  }
-  .splash-mascot-wrap{
-    opacity:0;
-    transform:translateY(30px) scale(.7);
-    animation:mascotIn .55s cubic-bezier(.34,1.56,.64,1) forwards;
-    animation-delay:.85s;
-  }
-  @keyframes mascotIn{
-    0%{ opacity:0; transform:translateY(30px) scale(.7); }
-    100%{ opacity:1; transform:translateY(0) scale(1); }
-  }
-  .splash-mascot-wrap.running svg{
-    animation:mascotRun .35s ease-in-out infinite;
-  }
-  @keyframes mascotRun{
-    0%,100%{ transform:rotate(-4deg) translateY(0); }
-    50%{ transform:rotate(4deg) translateY(-4px); }
-  }
-  .splash-loading{
-    margin-top:22px;
-    width:150px;
-    height:8px;
-    border-radius:999px;
-    border:2px dashed rgba(244,241,228,0.3);
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 30%, rgba(242,201,76,0.05), transparent 65%),
+      var(--board-bg);
+    transition:opacity .5s ease, background-color .8s ease;
     overflow:hidden;
-    background:rgba(0,0,0,0.15);
+    touch-action:none;
   }
-  .splash-loading-bar{
-    height:100%;
-    width:0%;
-    border-radius:999px;
-    background:linear-gradient(90deg, var(--amber-dim), var(--amber));
-    transition:width 1.5s cubic-bezier(.4,0,.2,1);
+  #splashScreen.fading{ opacity:0; pointer-events:none; }
+
+  .splash-lamp-wrap{
+    position:relative;
+    width:240px;
+    max-width:70vw;
   }
-  .splash-tag{
-    margin-top:12px;
+  .lamp-svg{ width:100%; height:auto; display:block; overflow:visible; }
+  #lampShade{ transition:filter .35s ease; }
+  #lampGlow{ opacity:0; }
+  #cordBead{ touch-action:none; }
+
+  .splash-hint{
+    margin-top:2px;
     font-family:'Space Mono',monospace;
-    font-size:9.5px;
+    font-size:11px;
     letter-spacing:2px;
     color:var(--off-day);
-    opacity:0;
-    animation:fadeSlideUp .4s ease forwards;
-    animation-delay:1.05s;
+    opacity:.85;
+    transition:opacity .3s ease;
+    animation:hintSway 1.8s ease-in-out infinite;
   }
-  #splashConfetti{
-    position:fixed;
-    inset:0;
-    z-index:1000000;
-    pointer-events:none;
-    overflow:hidden;
-    display:none;
-  }
-  .confetti-piece{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:8px;
-    height:8px;
-    opacity:1;
-    animation-name:confettiBurst;
-    animation-timing-function:cubic-bezier(.15,.6,.4,1);
-    animation-fill-mode:forwards;
-  }
-  @keyframes confettiBurst{
-    0%{ transform:translate(-50%,-50%) translate(0,0) rotate(0deg); opacity:1; }
-    100%{ transform:translate(-50%,-50%) translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity:0; }
+  @keyframes hintSway{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(3px); }
   }
 
-  @media (prefers-reduced-motion: reduce){
-    #splashScreen{ transition:opacity .01ms; }
-    .splash-title .letter, .splash-rope, .splash-mascot-wrap, .splash-tag{
-      animation-duration:.01ms !important;
-      animation-delay:0s !important;
-    }
-    .splash-inner.pulled{ animation-duration:.01ms !important; }
-    .confetti-piece{ display:none; }
+  .splash-title{
+    margin-top:18px;
+    font-family:'Kalam',cursive;
+    font-weight:700;
+    font-size:clamp(28px,8vw,40px);
+    letter-spacing:1px;
+    color:var(--amber);
+    min-height:1.3em;
+    display:flex;
+  }
+  .splash-letter{
+    display:inline-block;
+    opacity:0;
+    transform:scale(0.2) translateY(14px) rotate(-8deg);
+    animation:letterPop .5s cubic-bezier(.2,1.6,.4,1) forwards;
+    text-shadow:0 0 18px rgba(242,201,76,0.35);
+  }
+  @keyframes letterPop{
+    0%{ opacity:0; transform:scale(0.2) translateY(14px) rotate(-8deg); }
+    60%{ opacity:1; transform:scale(1.18) translateY(-3px) rotate(2deg); }
+    100%{ opacity:1; transform:scale(1) translateY(0) rotate(0deg); }
+  }
+
+  .confetti-piece{
+    position:fixed;
+    top:38%;
+    left:50%;
+    width:8px;
+    height:12px;
+    border-radius:2px;
+    opacity:1;
+    z-index:2001;
+    pointer-events:none;
+    animation:confettiFall 1.15s cubic-bezier(.2,.7,.4,1) forwards;
+  }
+  @keyframes confettiFall{
+    0%{ transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(1); opacity:1; }
+    100%{ transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.6); opacity:0; }
   }
 
 </style>
@@ -1294,39 +1228,26 @@
 <body>
 
 <div id="splashScreen">
-  <div class="splash-inner" id="splashInner">
-    <div class="splash-title" id="splashTitle"></div>
-    <div class="splash-rope" id="splashRope"></div>
-    <div class="splash-mascot-wrap" id="splashMascotWrap">
-      <svg width="96" height="96" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="50" cy="90" rx="26" ry="5" fill="rgba(0,0,0,0.25)"/>
-        <path d="M50 14c-20 0-33 15-33 36 0 19 12 33 33 33s33-14 33-33c0-21-13-36-33-36z" fill="#7fd6e0"/>
-        <circle cx="27" cy="24" r="9" fill="#7fd6e0"/>
-        <circle cx="73" cy="24" r="9" fill="#7fd6e0"/>
-        <circle cx="27" cy="24" r="4.5" fill="#ffffff"/>
-        <circle cx="73" cy="24" r="4.5" fill="#ffffff"/>
-        <circle cx="50" cy="8" r="5" fill="#ffe28a"/>
-        <line x1="50" y1="13" x2="50" y2="20" stroke="#c9a94a" stroke-width="2"/>
-        <ellipse cx="50" cy="58" rx="27" ry="24" fill="#ffffff"/>
-        <circle cx="39" cy="52" r="6.5" fill="#20343a"/>
-        <circle cx="61" cy="52" r="6.5" fill="#20343a"/>
-        <circle cx="41.5" cy="49.5" r="2" fill="#ffffff"/>
-        <circle cx="63.5" cy="49.5" r="2" fill="#ffffff"/>
-        <circle cx="31" cy="62" r="4.5" fill="#ffb3c0" opacity="0.7"/>
-        <circle cx="69" cy="62" r="4.5" fill="#ffb3c0" opacity="0.7"/>
-        <path d="M42 66q8 7 16 0" stroke="#20343a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path d="M22 78q28 14 56 0" stroke="#3fb6c4" stroke-width="7" fill="none" stroke-linecap="round"/>
-        <ellipse cx="16" cy="70" rx="7" ry="9" fill="#7fd6e0" transform="rotate(-18 16 70)"/>
-        <ellipse cx="84" cy="70" rx="7" ry="9" fill="#7fd6e0" transform="rotate(18 84 70)"/>
-      </svg>
-    </div>
-    <div class="splash-loading">
-      <div class="splash-loading-bar" id="splashLoadingBar"></div>
-    </div>
-    <div class="splash-tag">GETTING YOUR ROUTINE READY…</div>
+  <div class="splash-lamp-wrap">
+    <svg class="lamp-svg" viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+      <defs>
+        <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff3c4" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#fff3c4" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse id="lampGlow" cx="150" cy="130" rx="150" ry="150" fill="url(#glowGrad)"/>
+      <path id="lampShade" d="M55 115 A95 75 0 0 1 245 115 Z" fill="#eceadd"/>
+      <ellipse cx="150" cy="115" rx="95" ry="17" fill="#c9a45a" opacity="0.55"/>
+      <rect x="140" y="115" width="20" height="150" rx="3" fill="#cfcac0"/>
+      <rect x="85" y="263" width="160" height="16" rx="8" fill="#cfcac0"/>
+      <line id="cordLine" x1="188" y1="122" x2="188" y2="222" stroke="#7a7a72" stroke-width="2.5"/>
+      <circle id="cordBead" cx="188" cy="222" r="10" fill="#e0a37e"/>
+    </svg>
   </div>
+  <div class="splash-hint" id="splashHint">সুতোয় টান দাও ✦ pull the cord</div>
+  <div class="splash-title" id="splashTitle"></div>
 </div>
-<div id="splashConfetti"></div>
 
 <div id="selectOverlay" class="select-overlay" style="display:none;">
   <div class="select-card" id="selectCardInner"></div>
@@ -1385,110 +1306,147 @@
 </div>
 
 <script>
- 
+document.documentElement.classList.add("splash-lock");
+
 /* =========================================================
-   SPLASH INTRO — letters pop in, mascot runs off pulling the
-   title away, loading bar fills, confetti bursts, then the
-   real app underneath is revealed.
+   SPLASH INTRO — pull the lamp cord to switch it on, then
+   "CLASS ROUTINE" pops in letter by letter, then confetti,
+   then hand off into the main app underneath.
    ========================================================= */
-(function runSplash(){
+(function initSplash(){
   const splash = document.getElementById("splashScreen");
+  const hint = document.getElementById("splashHint");
   const titleEl = document.getElementById("splashTitle");
-  const mascotWrap = document.getElementById("splashMascotWrap");
-  const innerEl = document.getElementById("splashInner");
-  const barEl = document.getElementById("splashLoadingBar");
-  const confettiHost = document.getElementById("splashConfetti");
-  if(!splash || !titleEl) return;
+  const bead = document.getElementById("cordBead");
+  const cordLine = document.getElementById("cordLine");
+  const glow = document.getElementById("lampGlow");
+  const shade = document.getElementById("lampShade");
+  if(!splash || !bead) return;
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const TEXT = "CLASS ROUTINE";
-  let delay = 0;
-  const stepMs = reduced ? 0 : 65;
+  const BEAD_Y0 = 222;
+  const MAX_DRAG = 78;
+  const PULL_THRESHOLD = 42;
 
-  [...TEXT].forEach((ch)=>{
-    if(ch === " "){
-      const sp = document.createElement("span");
-      sp.className = "space";
-      titleEl.appendChild(sp);
-      return;
+  let dragging = false;
+  let startY = 0;
+  let turnedOn = false;
+
+  function setBeadY(y){
+    bead.setAttribute("cy", y);
+    cordLine.setAttribute("y2", y);
+  }
+
+  function animateTo(target, done){
+    const from = parseFloat(bead.getAttribute("cy"));
+    const dist = target - from;
+    if(Math.abs(dist) < 0.5){ setBeadY(target); if(done) done(); return; }
+    const duration = 260;
+    const start = performance.now();
+    function step(t){
+      const p = Math.min(1, (t - start) / duration);
+      // slight overshoot spring easing
+      const eased = p < 1 ? 1 - Math.pow(1 - p, 3) : 1;
+      setBeadY(from + dist * eased);
+      if(p < 1){ requestAnimationFrame(step); }
+      else { setBeadY(target); if(done) done(); }
     }
-    const span = document.createElement("span");
-    span.className = "letter";
-    span.textContent = ch;
-    span.style.animationDelay = delay + "ms";
-    titleEl.appendChild(span);
-    delay += stepMs;
-  });
-  // color the second word ("ROUTINE") amber, like the main header treats it
-  const secondWordStart = TEXT.indexOf(" ") + 1;
-  let charCount = 0;
-  titleEl.querySelectorAll(".letter, .space").forEach((el)=>{
-    if(charCount >= secondWordStart && el.classList.contains("letter")){
-      el.classList.add("amber");
+    requestAnimationFrame(step);
+  }
+
+  function pointerY(e){
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  }
+
+  function onDown(e){
+    if(turnedOn) return;
+    dragging = true;
+    startY = pointerY(e);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("touchmove", onMove, {passive:false});
+    window.addEventListener("touchend", onUp);
+  }
+  function onMove(e){
+    if(!dragging) return;
+    if(e.cancelable) e.preventDefault();
+    const delta = Math.max(0, Math.min(MAX_DRAG, pointerY(e) - startY));
+    setBeadY(BEAD_Y0 + delta);
+  }
+  function onUp(){
+    if(!dragging) return;
+    dragging = false;
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("touchmove", onMove);
+    window.removeEventListener("touchend", onUp);
+    const delta = parseFloat(bead.getAttribute("cy")) - BEAD_Y0;
+    if(delta >= PULL_THRESHOLD){
+      animateTo(BEAD_Y0 + 18, ()=> animateTo(BEAD_Y0));
+      turnOn();
+    } else {
+      animateTo(BEAD_Y0);
     }
-    charCount++;
-  });
+  }
 
-  const letterCount = [...TEXT].filter(c=>c!==" ").length;
-  const lettersDoneAt = reduced ? 0 : letterCount * stepMs + 500;
+  bead.addEventListener("pointerdown", onDown);
+  bead.addEventListener("touchstart", onDown, {passive:true});
+  // also allow a plain tap/click on the cord or bead as a shortcut
+  bead.addEventListener("click", ()=>{ if(!dragging && !turnedOn) turnOn(); });
 
-  function spawnConfetti(){
-    confettiHost.style.display = "block";
-    confettiHost.innerHTML = "";
-    const colors = ["#f2c94c","#7fd6e0","#f2a6c5","#9bd67f","#f2965a","#c9a6f2"];
-    const count = reduced ? 0 : 46;
-    for(let i=0;i<count;i++){
-      const p = document.createElement("div");
-      p.className = "confetti-piece";
-      const angle = Math.random()*Math.PI*2;
-      const dist = 120 + Math.random()*220;
-      const tx = Math.cos(angle)*dist;
-      const ty = Math.sin(angle)*dist - 60;
-      const rot = (Math.random()*720 - 360) + "deg";
-      p.style.setProperty("--tx", tx.toFixed(0)+"px");
-      p.style.setProperty("--ty", ty.toFixed(0)+"px");
-      p.style.setProperty("--rot", rot);
-      p.style.background = colors[i % colors.length];
-      p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
-      p.style.width = p.style.height = (6 + Math.random()*6).toFixed(0)+"px";
-      const dur = (0.7 + Math.random()*0.5).toFixed(2)+"s";
-      p.style.animationDuration = dur;
-      confettiHost.appendChild(p);
+  function turnOn(){
+    if(turnedOn) return;
+    turnedOn = true;
+    hint.style.opacity = "0";
+    glow.style.transition = "opacity .4s ease";
+    glow.style.opacity = "1";
+    shade.style.filter = "brightness(1.35) saturate(1.05)";
+    setTimeout(popTitle, 380);
+  }
+
+  function popTitle(){
+    const text = "CLASS ROUTINE";
+    titleEl.innerHTML = "";
+    const letters = text.split("");
+    letters.forEach((ch, i)=>{
+      const span = document.createElement("span");
+      span.className = "splash-letter";
+      span.textContent = ch === " " ? "\u00A0" : ch;
+      span.style.animationDelay = (i * 0.055) + "s";
+      titleEl.appendChild(span);
+    });
+    const popDuration = letters.length * 55 + 550;
+    setTimeout(confettiBurst, popDuration);
+    setTimeout(finishSplash, popDuration + 1250);
+  }
+
+  function confettiBurst(){
+    const colors = ["#f2c94c","#c9a6f2","#8ecbf2","#9bd67f","#f2965a","#7fd9c4","#f2a6c5"];
+    const count = 46;
+    for(let i = 0; i < count; i++){
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 90 + Math.random() * 220;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist - 40; // slight upward bias
+      piece.style.setProperty("--dx", dx.toFixed(0) + "px");
+      piece.style.setProperty("--dy", dy.toFixed(0) + "px");
+      piece.style.setProperty("--rot", (Math.random() * 560 - 280).toFixed(0) + "deg");
+      piece.style.background = colors[i % colors.length];
+      piece.style.left = "50%";
+      piece.style.top = "40%";
+      piece.style.animationDelay = (Math.random() * 0.12) + "s";
+      piece.style.animationDuration = (0.9 + Math.random() * 0.5) + "s";
+      splash.appendChild(piece);
+      setTimeout(()=> piece.remove(), 1700);
     }
   }
 
   function finishSplash(){
-    splash.classList.add("hide");
-    setTimeout(()=>{
-      splash.style.display = "none";
-      confettiHost.style.display = "none";
-      confettiHost.innerHTML = "";
-    }, reduced ? 10 : 550);
+    splash.classList.add("fading");
+    document.documentElement.classList.remove("splash-lock");
+    setTimeout(()=>{ splash.style.display = "none"; }, 520);
   }
-
-  if(reduced){
-    finishSplash();
-    return;
-  }
-
-  // start the loading bar filling roughly alongside the letters + pull
-  setTimeout(()=>{ barEl.style.width = "100%"; }, 150);
-
-  // once letters are in, pull the whole title+mascot away
-  setTimeout(()=>{
-    mascotWrap.classList.add("running");
-    innerEl.classList.add("pulled");
-  }, lettersDoneAt);
-
-  // confetti bursts right as the title exits
-  setTimeout(()=>{
-    spawnConfetti();
-  }, lettersDoneAt + 550);
-
-  // reveal the real app after the burst settles
-  setTimeout(()=>{
-    finishSplash();
-  }, lettersDoneAt + 1350);
 })();
 
 const THEME_BY_DOW = ["sun","mon","tue","wed","thu","fri","sat"];
@@ -1522,7 +1480,7 @@ const SUBJECTS = {
 };
 
  
-const LAST_UPDATED_DATE = "06 Sept 2026";
+const LAST_UPDATED_DATE = "01 Sept 2026";
 const LAST_UPDATED_TIME = "10:00 AM";
 
  
