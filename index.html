@@ -1306,14 +1306,30 @@
 </div>
 
 <script>
-document.documentElement.classList.add("splash-lock");
+const SPLASH_SEEN_KEY = "classRoutineSplashSeenDate";
+function todayKey(){
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+const splashAlreadySeen = localStorage.getItem(SPLASH_SEEN_KEY) === todayKey();
+
+if(!splashAlreadySeen){
+  document.documentElement.classList.add("splash-lock");
+} else {
+  const splashEl = document.getElementById("splashScreen");
+  if(splashEl) splashEl.style.display = "none";
+}
 
 /* =========================================================
    SPLASH INTRO — pull the lamp cord to switch it on, then
    "CLASS ROUTINE" pops in letter by letter, then confetti,
    then hand off into the main app underneath.
+   Shown once per day — first open of the day plays it,
+   later opens the same day skip straight to the app.
+   Next day it plays again on the first open.
    ========================================================= */
 (function initSplash(){
+  if(splashAlreadySeen) return;
   const splash = document.getElementById("splashScreen");
   const hint = document.getElementById("splashHint");
   const titleEl = document.getElementById("splashTitle");
@@ -1443,6 +1459,7 @@ document.documentElement.classList.add("splash-lock");
   }
 
   function finishSplash(){
+    localStorage.setItem(SPLASH_SEEN_KEY, todayKey());
     splash.classList.add("fading");
     document.documentElement.classList.remove("splash-lock");
     setTimeout(()=>{ splash.style.display = "none"; }, 520);
