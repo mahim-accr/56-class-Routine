@@ -45,6 +45,7 @@
     --accent-stat-time:#9bd67f;
     --accent-stat-free:#f2a6c5;
     --accent-stat-span:#f2965a;
+    --accent-exam:#f2965a;
   }
 
    
@@ -702,6 +703,7 @@
     gap:8px;
     margin-top:14px;
     animation:fadeSlideUp .5s ease both .1s;
+    flex-wrap:wrap;
   }
   .icon-btn{
     position:relative;
@@ -744,6 +746,9 @@
 
   #attendBtn{ border-color:color-mix(in srgb, var(--accent-attend) 55%, transparent); color:var(--accent-attend); }
   #attendBtn:hover{ border-color:var(--accent-attend); background:color-mix(in srgb, var(--accent-attend) 12%, transparent); }
+
+  #examBtn{ border-color:color-mix(in srgb, var(--accent-exam) 55%, transparent); color:var(--accent-exam); }
+  #examBtn:hover{ border-color:var(--accent-exam); background:color-mix(in srgb, var(--accent-exam) 12%, transparent); }
 
   /* ---------- stats strip ---------- */
   .stats-strip{
@@ -1132,6 +1137,107 @@
   }
   .attend-list .ai-reset:hover{ color:#f28a8a; }
 
+  /* ---------- exam routine overview overlay ---------- */
+  .exam-tabs{
+    display:flex;
+    gap:8px;
+    margin-top:4px;
+    margin-bottom:16px;
+  }
+  .exam-tabs button{
+    flex:1;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:1px;
+    padding:9px 6px;
+    border-radius:10px 3px 10px 3px;
+    border:2px dashed rgba(244,241,228,0.3);
+    background:none;
+    color:var(--off-day);
+    cursor:pointer;
+    transition:border-color .18s ease, color .18s ease, background .18s ease;
+  }
+  .exam-tabs button:hover{ color:var(--paper); }
+  .exam-tabs button.active{
+    border-style:solid;
+    border-color:var(--accent-exam);
+    color:var(--accent-exam);
+    background:color-mix(in srgb, var(--accent-exam) 14%, transparent);
+  }
+  .exam-list{ text-align:left; max-height:50vh; overflow-y:auto; margin-top:2px; }
+  .exam-card{
+    display:grid;
+    grid-template-columns:56px 1fr;
+    gap:12px;
+    align-items:center;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:14px 5px 14px 5px;
+    border:1.5px dashed rgba(244,241,228,0.22);
+    background:rgba(244,241,228,0.03);
+    animation:fadeSlideUp .35s ease both;
+  }
+  .exam-card .ec-date{
+    text-align:center;
+    border-radius:10px 3px 10px 3px;
+    padding:7px 2px;
+    color:#132720;
+    font-family:'Space Mono',monospace;
+  }
+  .exam-card .ec-date .ec-dow{ display:block; font-size:8px; font-weight:700; letter-spacing:1px; opacity:.85; }
+  .exam-card .ec-date .ec-num{ display:block; font-family:'Kalam',cursive; font-size:19px; font-weight:700; line-height:1.15; }
+  .exam-card .ec-date .ec-mon{ display:block; font-size:8px; font-weight:700; letter-spacing:1px; opacity:.85; }
+  .exam-card .ec-seq{
+    font-family:'Space Mono',monospace;
+    font-size:9px;
+    letter-spacing:1.5px;
+    color:var(--off-day);
+  }
+  .exam-card .ec-subj{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    color:var(--paper);
+    margin-top:2px;
+  }
+  .exam-card .ec-code{
+    display:inline-block;
+    margin-top:5px;
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.5px;
+    padding:2px 8px;
+    border-radius:8px 3px 8px 3px;
+    border:1.5px dashed rgba(244,241,228,0.3);
+    color:var(--off-day);
+  }
+  .exam-card .ec-time{
+    display:block;
+    margin-top:6px;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:0.5px;
+    color:var(--paper);
+  }
+  .exam-empty{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--off-day);
+    text-align:center;
+    padding:20px 0;
+  }
+  .exam-summary{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:1px;
+    color:var(--off-day);
+    text-align:center;
+    margin-bottom:14px;
+  }
+  .exam-summary b{ color:var(--accent-exam); }
+
   /* =========================================================
      SPLASH INTRO — table lamp with a pull cord. Drag the bead
      down to switch the light on, then the title pops in
@@ -1265,6 +1371,10 @@
   <div class="select-card" id="attendCardInner" style="max-width:440px;"></div>
 </div>
 
+<div id="examOverlay" class="select-overlay" style="display:none;">
+  <div class="select-card" id="examCardInner" style="max-width:440px;"></div>
+</div>
+
 
 <div id="toast" class="toast"></div>
 
@@ -1280,6 +1390,7 @@
       <button class="icon-btn" id="pinnedBtn" title="All notes">📌 NOTES <span class="count" id="pinnedCount">0</span></button>
       <button class="icon-btn" id="notifyBtn" title="Class reminders">🔔 REMIND</button>
       <button class="icon-btn" id="attendBtn" title="Attendance tracker">📊 ATTENDANCE</button>
+      <button class="icon-btn" id="examBtn" title="Midterm exam routine">📝 EXAMS</button>
     </div>
   </header>
 
@@ -1597,6 +1708,30 @@ const SECTIONS = {
   },
 };
 
+/* =========================================================
+   MIDTERM EXAM ROUTINE — one array per section. Each entry
+   is a single exam slot. Colors cycle through EXAM_COLORS.
+   5A / 5C dates are placeholders until the real routine is
+   published — update them here (or ask to have them filled
+   in) once available.
+   ========================================================= */
+const EXAM_COLORS = ["#8078d6","#1a9e7a","#d9531e","#c9427a","#c98a1a","#6a9e2f"];
+
+const MIDTERM_EXAM_ROUTINE_TEMPLATE = [
+  {date:16, month:"SEP", dow:"WED", subj:"Theory of Computation", code:"CSE0611319", time:"11:30 AM – 12:30 PM"},
+  {date:17, month:"SEP", dow:"THU", subj:"Financial & Managerial Accounting", code:"GED0411311", time:"01:30 PM – 02:30 PM"},
+  {date:20, month:"SEP", dow:"SUN", subj:"Computer Networks", code:"CSE0612313", time:"10:00 AM – 11:00 AM"},
+  {date:23, month:"SEP", dow:"WED", subj:"Computer Architecture", code:"CSE0611317", time:"10:00 AM – 11:00 AM"},
+  {date:27, month:"SEP", dow:"SUN", subj:"Probability and Statistics", code:"MATH0542313", time:"11:30 AM – 12:30 PM"},
+  {date:29, month:"SEP", dow:"TUE", subj:"Artificial Intelligence", code:"CSE0613312", time:"11:30 AM – 12:30 PM"},
+];
+
+const EXAM_ROUTINES = {
+  "5A": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
+  "5B": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
+  "5C": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
+};
+
 function fmt(t){
   let [h,m] = t;
   const ap = h >= 12 ? "PM" : "AM";
@@ -1632,6 +1767,7 @@ let lastVisibleClasses = [];
 let notifyEnabled = localStorage.getItem(NOTIFY_KEY) === "1";
 let firedReminders = new Set();
 let bannerTarget = null;   // {type:"current"|"next", untilMin: number}
+let examTabSection = null; // which section's exam routine is showing in the overlay
 
 function loadNotes(){
   try{ return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}"); }
@@ -2124,6 +2260,83 @@ function showAttendOverview(){
 }
 
 /* =========================================================
+   MIDTERM EXAM ROUTINE OVERVIEW — one tab per section (5A /
+   5B / 5C) so any student can check any section's schedule,
+   not just their own. Opens on the student's own section by
+   default.
+   ========================================================= */
+function renderExamCard(exam, idx, color){
+  return `
+    <div class="exam-card" style="animation-delay:${idx*0.04}s;">
+      <div class="ec-date" style="background:${color};">
+        <span class="ec-dow">${exam.dow}</span>
+        <span class="ec-num">${exam.date}</span>
+        <span class="ec-mon">${exam.month}</span>
+      </div>
+      <div>
+        <span class="ec-seq">EXAM ${idx+1}</span>
+        <div class="ec-subj">${escapeHtml(exam.subj)}</div>
+        <span class="ec-code">${escapeHtml(exam.code)}</span>
+        <span class="ec-time">${exam.time}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderExamTabContent(){
+  const listEl = document.getElementById("examList");
+  const summaryEl = document.getElementById("examSummary");
+  if(!listEl) return;
+  const routine = EXAM_ROUTINES[examTabSection];
+  const exams = (routine && routine.exams) || [];
+
+  document.querySelectorAll("#examTabs button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.sec === examTabSection);
+  });
+
+  if(summaryEl){
+    summaryEl.innerHTML = exams.length
+      ? `<b>${exams.length} EXAMS</b> · ${routine.range}`
+      : `NO EXAM ROUTINE PUBLISHED YET FOR ${examTabSection}`;
+  }
+
+  listEl.innerHTML = exams.length === 0
+    ? `<div class="exam-empty">এই সেকশনের midterm routine এখনো publish হয়নি। পরে আবার চেক করো।</div>`
+    : exams.map((ex,i)=> renderExamCard(ex, i, EXAM_COLORS[i % EXAM_COLORS.length])).join("");
+}
+
+function showExamOverview(){
+  const ov = document.getElementById("examOverlay");
+  const inner = document.getElementById("examCardInner");
+  examTabSection = (currentSection && EXAM_ROUTINES[currentSection]) ? currentSection : Object.keys(EXAM_ROUTINES)[0];
+
+  const sections = Object.keys(EXAM_ROUTINES);
+  inner.innerHTML = `
+    <div class="kicker">MIDTERM EXAM 2026</div>
+    <h2>Exam Routine</h2>
+    <div class="exam-tabs" id="examTabs">
+      ${sections.map(s => `<button data-sec="${s}">${s}</button>`).join("")}
+    </div>
+    <div class="exam-summary" id="examSummary"></div>
+    <div class="exam-list" id="examList"></div>
+    <button class="back-link" id="examCloseBtn">‹ CLOSE</button>
+  `;
+  ov.style.display = "flex";
+
+  inner.querySelectorAll("#examTabs button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      examTabSection = btn.dataset.sec;
+      renderExamTabContent();
+    });
+  });
+  renderExamTabContent();
+
+  document.getElementById("examCloseBtn").addEventListener("click", ()=>{
+    ov.style.display = "none";
+  });
+}
+
+/* =========================================================
    EXAM / TEST RADAR — scans all notes for test/exam keywords
    and surfaces the nearest upcoming one.
    ========================================================= */
@@ -2324,6 +2537,7 @@ function showSectionStep(){
 
 document.getElementById("pinnedBtn").addEventListener("click", showPinnedOverview);
 document.getElementById("attendBtn").addEventListener("click", showAttendOverview);
+document.getElementById("examBtn").addEventListener("click", showExamOverview);
 setupNotifyBtn();
 setupSwipe();
 
