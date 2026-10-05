@@ -1,12 +1,10 @@
-
-
-const CACHE_NAME = "routine-cache-v3";
+const CACHE_NAME = "routine-cache-v4";
 
 // Adjust this list if your files have different names on the
 // server. Keep it relative to where sw.js itself is served from.
 const CORE_ASSETS = [
   "./",
-  "./routine.html",
+  "./index.html",
   "./manifest.json",
   "./icon-192.png"
 ];
@@ -69,7 +67,7 @@ self.addEventListener("fetch", (event) => {
         // network for — fall back to the main app shell so the
         // user still lands inside the app instead of an error page.
         if (req.mode === "navigate") {
-          const shell = await cache.match("./routine.html");
+          const shell = await cache.match("./index.html");
           if (shell) return shell;
         }
         throw err;
