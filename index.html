@@ -7,1593 +7,175 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Routine">
-<meta name="theme-color" content="#1c3a30">
+<meta name="theme-color" content="#0f241d">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" onerror="this.remove()">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet" onerror="this.remove()">
 <style>
-  :root{
-    --board-bg:#1c3a30;
-    --board-bg-2:#20443a;
-    --amber:#f2c94c;
-    --amber-dim:#8a7a3f;
-    --paper:#f4f1e4;
-    --ink:#132720;
-    --line:rgba(244,241,228,0.22);
-    --off-day:#7fa596;
+:root{
+  --bg:#0f241d; --bg2:#183229; --ac:#f2c94c;
+  --ink:#f3efe2; --mut:rgba(243,239,226,.6); --line:rgba(243,239,226,.1); --card:rgba(243,239,226,.055);
+  --good:#8fd08f; --warn:#f2c14e; --bad:#f28a8a;
+  --c-ai:#c9a6f2; --c-ailab:#f2a6c5; --c-ps:#8ecbf2; --c-ca:#6fa8dc; --c-toc:#7fd9c4;
+  --c-spd:#9bd67f; --c-fma:#f2c14e; --c-lpl:#f2965a; --c-cn:#f4dd6e; --c-cnlab:#e39fb5;
+  --head:'Bricolage Grotesque','Hind Siliguri',system-ui,sans-serif;
+  --body:'Hind Siliguri',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+:root[data-theme=mon]{--bg:#0e1a33;--bg2:#16264a;--ac:#6fc7f2}
+:root[data-theme=tue]{--bg:#2a121c;--bg2:#3a1a28;--ac:#f2c94c}
+:root[data-theme=wed]{--bg:#1b1330;--bg2:#2a1d48;--ac:#c9a6f2}
+:root[data-theme=thu]{--bg:#0b2a26;--bg2:#123d37;--ac:#7fe0c4}
+:root[data-theme=fri]{--bg:#1a1c20;--bg2:#272a30;--ac:#f2c14e}
+:root[data-theme=sat]{--bg:#2c1e10;--bg2:#40291a;--ac:#f2965a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font-family:var(--body);color:var(--ink);min-height:100vh;
+  background:radial-gradient(120% 50% at 50% -5%,color-mix(in srgb,var(--ac) 16%,transparent),transparent 70%),var(--bg);
+  background-attachment:fixed;transition:background-color .6s;
+  padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.app{max-width:560px;margin:0 auto}
 
-    --c-ai:#c9a6f2;
-    --c-ailab:#f2a6c5;
-    --c-ps:#8ecbf2;
-    --c-ca:#6fa8dc;
-    --c-toc:#7fd9c4;
-    --c-spd:#9bd67f;
-    --c-fma:#f2c14e;
-    --c-lpl:#f2965a;
-    --c-cn:#f4dd6e;
-    --c-cnlab:#e39fb5;
+/* header */
+.top{padding:calc(22px + env(safe-area-inset-top,0px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.top h1{font-family:var(--head);font-weight:800;font-size:34px;line-height:1;margin:0;letter-spacing:-.5px}
+.top .grp{display:flex;align-items:center;gap:10px;margin-top:8px;color:var(--mut);font-size:14px}
+.chg{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--ac)}
+.clock{text-align:right;font-family:var(--head);font-weight:700}
+.clock b{display:block;font-size:22px}
+.clock span{font-size:13px;color:var(--mut);font-weight:500}
 
-    /* fixed UI-accent colors (independent of day theme, keeps controls visually distinct) */
-    --accent-notes:#f2a6c5;
-    --accent-remind:#f2c94c;
-    --accent-attend:#8ecbf2;
-    --accent-next:#f2685c;
-    --accent-daynav:#b98af2;
-    --accent-stat-classes:#8ecbf2;
-    --accent-stat-time:#9bd67f;
-    --accent-stat-free:#f2a6c5;
-    --accent-stat-span:#f2965a;
-    --accent-exam:#f2965a;
-  }
+/* day strip */
+.days{position:sticky;top:0;z-index:5;display:flex;gap:8px;padding:10px 16px 12px;overflow-x:auto;scrollbar-width:none;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));
+  background:linear-gradient(var(--bg) 75%,transparent)}
+.days::-webkit-scrollbar{display:none}
+.day{flex:1 0 56px;position:relative;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:9px 0 8px;text-align:center;transition:background .2s,color .2s}
+.day small{display:block;font-size:12px;color:var(--mut)}
+.day b{display:block;font-family:var(--head);font-size:20px;line-height:1.2}
+.day.today::after{content:"";position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--ac)}
+.day.active{background:var(--ac);border-color:var(--ac);color:#17211c}
+.day.active small{color:rgba(23,33,28,.7)}
+.day.active::after{background:#17211c}
 
-   
-  :root[data-theme="sun"]{  
-    --board-bg:#1c3a30; --board-bg-2:#20443a; --amber:#f2c94c; --amber-dim:#8a7a3f; --off-day:#7fa596;
-  }
-  :root[data-theme="mon"]{  
-    --board-bg:#182849; --board-bg-2:#1d3157; --amber:#6fc7f2; --amber-dim:#4f7a8a; --off-day:#7f9bc9;
-  }
-  :root[data-theme="tue"]{  
-    --board-bg:#3a1c28; --board-bg-2:#44202f; --amber:#f2c94c; --amber-dim:#8a6f3f; --off-day:#c98aa0;
-  }
-  :root[data-theme="wed"]{  
-    --board-bg:#271c3a; --board-bg-2:#2f2144; --amber:#c9a6f2; --amber-dim:#7a638a; --off-day:#a695c9;
-  }
-  :root[data-theme="thu"]{  
-    --board-bg:#123a35; --board-bg-2:#15453f; --amber:#7fe0c4; --amber-dim:#4f8a7a; --off-day:#7fc9ba;
-  }
-  :root[data-theme="fri"]{  
-    --board-bg:#24262b; --board-bg-2:#2c2f35; --amber:#f2c14e; --amber-dim:#8a7d4f; --off-day:#9aa0a6;
-  }
-  :root[data-theme="sat"]{  
-    --board-bg:#3a2a18; --board-bg-2:#44321d; --amber:#f2965a; --amber-dim:#8a6a4f; --off-day:#c9ab7f;
-  }
+/* live banner */
+.live{margin:6px 16px 0;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;
+  background:color-mix(in srgb,var(--ac) 14%,transparent);border:1px solid color-mix(in srgb,var(--ac) 40%,transparent)}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 0 var(--ac);animation:pulse 1.8s infinite;flex:none}
+@keyframes pulse{70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.live div{flex:1;min-width:0}
+.live small{display:block;font-size:12.5px;color:var(--mut)}
+.live b{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live time{font-family:var(--head);font-weight:800;font-size:20px;color:var(--ac);font-variant-numeric:tabular-nums}
 
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--board-bg);
-    color:var(--paper);
-    font-family:'Inter',sans-serif;
-    min-height:100vh;
-    padding-bottom:48px;
-    position:relative;
-    overflow-x:hidden;
-    transition:background-color .8s ease, color .8s ease;
-  }
+/* stats */
+.stats{margin:12px 16px 0;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.stats div{padding:10px 4px;text-align:center}
+.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-family:var(--head);font-size:19px;font-weight:700}
+.stats span{font-size:12px;color:var(--mut)}
 
-  /* ---------- chalkboard atmosphere: smudges + drifting dust ---------- */
-  body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    z-index:0;
-    pointer-events:none;
-    background:
-      radial-gradient(ellipse 55% 30% at 10% 5%, rgba(244,241,228,0.05), transparent 60%),
-      radial-gradient(ellipse 40% 25% at 95% 0%, rgba(244,241,228,0.04), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0,0,0,0.18), transparent 65%);
-  }
-  body::after{
-    content:"";
-    position:fixed;
-    inset:-10% -10%;
-    z-index:0;
-    pointer-events:none;
-    opacity:.5;
-    background-image:
-      radial-gradient(rgba(244,241,228,0.5) 1px, transparent 1.4px),
-      radial-gradient(rgba(244,241,228,0.35) 1px, transparent 1.4px);
-    background-size:140px 140px, 210px 210px;
-    background-position:0 0, 60px 90px;
-    animation:dustDrift 22s linear infinite;
-  }
-  @keyframes dustDrift{
-    0%{ background-position:0 0, 60px 90px; }
-    100%{ background-position:40px 260px, 100px 350px; }
-  }
-  .board-frame{ position:relative; z-index:1; transition:background-color .8s ease; }
-  .select-overlay{ z-index:50; }
+/* timeline */
+.list{padding:16px 16px 0;display:flex;flex-direction:column;gap:10px}
+.empty{margin:16px;padding:48px 20px;text-align:center;border:1px dashed var(--line);border-radius:20px;color:var(--mut)}
+.empty b{display:block;font-family:var(--head);font-size:22px;color:var(--ink);margin-bottom:6px}
+.cls{display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:center;padding:14px 14px 14px 12px;border-radius:18px;
+  background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden;cursor:pointer;transition:transform .15s,background .15s}
+.cls::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:var(--sc)}
+.cls:active{transform:scale(.985)}
+.cls.now{background:color-mix(in srgb,var(--ac) 13%,var(--bg2));border-color:var(--ac)}
+.cls .t{padding-left:6px;font-family:var(--head);line-height:1.25}
+.cls .t b{display:block;font-size:15px;font-weight:700}
+.cls .t span{font-size:12.5px;color:var(--mut);font-weight:500}
+.cls h3{margin:0;font-size:15.5px;font-weight:600;line-height:1.3}
+.cls .fac{margin-top:3px;font-size:13px;color:var(--mut)}
+.cls .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.note-pill{font-size:12.5px;color:var(--c-lpl);background:color-mix(in srgb,var(--c-lpl) 14%,transparent);border-radius:8px;padding:1px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room{text-align:center;min-width:52px;padding:7px 8px;border-radius:12px;background:rgba(0,0,0,.22);font-family:var(--head);font-weight:700;font-size:17px;line-height:1.1}
+.room small{display:block;font-family:var(--body);font-weight:400;font-size:11px;color:var(--mut);margin-bottom:2px}
+.cls.now .room{background:var(--ac);color:#17211c}
+.cls.now .room small{color:rgba(23,33,28,.7)}
+.brk{display:flex;align-items:center;gap:10px;padding:0 6px 0 18px;font-size:13px;color:var(--mut)}
+.brk::before,.brk::after{content:"";flex:1;border-top:1px dashed var(--line)}
+/* my note */
+.mynote{margin:20px 16px 0;padding:16px;border-radius:18px;background:var(--bg2);border:1px solid var(--line)}
+.mynote .hd{display:flex;justify-content:space-between;align-items:center}
+.mynote h2{margin:0;font-family:var(--head);font-size:16px}
+.mynote p{margin:10px 0 0;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.mynote .dim{color:var(--mut);font-size:14px}
+textarea{width:100%;margin-top:10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:var(--ink);font:inherit;font-size:15.5px;resize:vertical;min-height:84px}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:500}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#17211c;font-weight:600}
+.btn.sm{padding:4px 12px;font-size:13px}
+.foot{text-align:center;padding:28px 20px 0;font-size:13px;color:var(--mut);line-height:1.8}
+.foot b{display:block;color:var(--ink);font-family:var(--head);font-size:14px}
 
-  .board-frame{
-    max-width:640px;
-    margin:0 auto;
-    padding:0 0 24px;
-  }
+/* bottom nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;width:min(420px,calc(100% - 24px));
+  display:grid;grid-template-columns:repeat(2,1fr);padding:6px;border-radius:24px;background:color-mix(in srgb,var(--bg2) 88%,black);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.45);backdrop-filter:blur(14px)}
+.nav button{position:relative;background:none;border:0;border-radius:18px;padding:8px 4px 7px;font-size:12.5px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button i{font-style:normal;font-size:20px;line-height:1.2}
+.nav button.on{color:var(--ac)}
+.nav .cnt{position:absolute;top:3px;left:calc(50% + 6px);background:var(--ac);color:#17211c;border-radius:999px;font-size:11px;font-weight:700;min-width:17px;padding:0 5px;line-height:17px}
+#installAppBtn{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:19;display:none;border:0;border-radius:999px;padding:9px 18px;background:var(--ac);color:#17211c;font-weight:600;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 
-  header.hero{
-    padding:30px 20px 20px;
-    border-bottom:2px dashed rgba(244,241,228,0.28);
-    background:var(--board-bg-2);
-    position:relative;
-    overflow:hidden;
-    transition:background-color .8s ease, border-color .8s ease;
-  }
-  header.hero::before{
-    content:"UNIVERSITY TIMETABLE SYSTEM";
-    display:block;
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    letter-spacing:3px;
-    color:var(--off-day);
-    margin-bottom:8px;
-    animation:fadeSlideUp .5s ease both;
-  }
-  h1{
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:clamp(30px,7.4vw,42px);
-    margin:0 0 4px;
-    letter-spacing:0.2px;
-    line-height:1.08;
-    color:var(--paper);
-    transform:rotate(-0.6deg);
-    animation:fadeSlideUp .55s ease both .06s;
-    position:relative;
-    display:inline-block;
-  }
-  h1 span{
-    color:var(--amber);
-    position:relative;
-    display:inline-block;
-  }
-  h1 span::after{
-    content:"";
-    position:absolute;
-    left:-2%; right:-2%; bottom:-6px;
-    height:10px;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14'><path d='M2 8 Q 12 2, 22 8 T 42 8 T 62 8 T 82 8 T 102 8 T 122 8' fill='none' stroke='%23f2c94c' stroke-width='3.4' stroke-linecap='round'/></svg>");
-    background-repeat:repeat-x;
-    background-size:60px 10px;
-    clip-path:inset(0 100% 0 0);
-    animation:chalkDraw .7s ease forwards .5s;
-  }
-  @keyframes chalkDraw{
-    0%{ clip-path:inset(0 100% 0 0); }
-    100%{ clip-path:inset(0 0% 0 0); }
-  }
-  .subhead{
-    font-family:'Space Mono',monospace;
-    font-size:12px;
-    color:var(--off-day);
-    letter-spacing:1px;
-    display:flex;
-    justify-content:space-between;
-    margin-top:16px;
-    flex-wrap:wrap;
-    gap:6px;
-    animation:fadeSlideUp .55s ease both .16s;
-  }
-  .subhead b{color:var(--amber); font-weight:700;}
-
-  @keyframes fadeSlideUp{
-    0%{ opacity:0; transform:translateY(8px); }
-    100%{ opacity:1; transform:translateY(0); }
-  }
-
-  .section-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    margin-top:16px;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:1.5px;
-    color:var(--amber);
-    background:rgba(244,241,228,0.05);
-    border:2px dashed var(--amber-dim);
-    padding:5px 12px;
-    border-radius:14px 4px 14px 4px;
-    animation:fadeSlideUp .5s ease both;
-    transition:border-color .2s ease, background .2s ease;
-  }
-  .section-badge:hover{
-    border-color:var(--amber);
-    background:rgba(244,241,228,0.09);
-  }
-  .section-badge button{
-    border:none;
-    background:none;
-    color:var(--off-day);
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    letter-spacing:1px;
-    cursor:pointer;
-    padding:0;
-    text-decoration:underline;
-    text-decoration-style:dashed;
-  }
-
-  nav.days{
-    display:flex;
-    overflow-x:auto;
-    background:var(--board-bg-2);
-    border-bottom:2px dashed rgba(244,241,228,0.2);
-    position:sticky;
-    top:0;
-    z-index:5;
-    scrollbar-width:none;
-    padding-top:4px;
-    transition:background-color .8s ease, border-color .8s ease;
-  }
-  nav.days::-webkit-scrollbar{display:none;}
-  nav.days button{
-    flex:1 0 auto;
-    min-width:76px;
-    background:none;
-    border:none;
-    color:var(--off-day);
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:1.5px;
-    padding:14px 10px 12px;
-    cursor:pointer;
-    position:relative;
-    transition:color .2s ease;
-  }
-  nav.days button:hover{color:var(--paper);}
-  nav.days button .full{display:block; font-family:'Kalam',cursive; font-weight:700; font-size:15px; letter-spacing:0; margin-top:2px; color:inherit;}
-  nav.days button.active{color:var(--accent-daynav);}
-  nav.days button.active::before{
-    content:"";
-    position:absolute;
-    left:6%; right:6%; bottom:4px; top:2px;
-    border:2.5px solid var(--accent-daynav);
-    border-radius:52% 48% 47% 53% / 58% 44% 56% 42%;
-    transform:rotate(-2deg);
-    opacity:0;
-    animation:chalkLoop .5s ease forwards;
-    pointer-events:none;
-  }
-  @keyframes chalkLoop{
-    0%{ opacity:0; transform:rotate(-6deg) scale(.85); }
-    60%{ opacity:1; transform:rotate(1deg) scale(1.03); }
-    100%{ opacity:1; transform:rotate(-2deg) scale(1); }
-  }
-  nav.days button .dot{
-    display:none;
-    width:6px;height:6px;border-radius:50%;background:var(--accent-daynav);
-    position:absolute; top:6px; right:16px;
-    animation:blink 1.4s infinite;
-  }
-  nav.days button.is-today .dot{display:block;}
-
-  .board{padding:16px 16px 4px;}
-
-  .empty-day{
-    font-family:'Space Mono',monospace;
-    color:var(--off-day);
-    text-align:center;
-    padding:60px 20px;
-    font-size:14px;
-    letter-spacing:2px;
-    border:2px dashed rgba(244,241,228,0.22);
-    border-radius:16px 6px 16px 6px;
-    margin-top:8px;
-  }
-  .empty-day .big{
-    display:block;
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:24px;
-    color:var(--paper);
-    letter-spacing:0.5px;
-    margin-bottom:10px;
-    transform:rotate(-1deg);
-  }
-
-  .row{
-    display:grid;
-    grid-template-columns:78px 1fr 62px;
-    gap:12px;
-    align-items:center;
-    padding:16px 14px;
-    margin-bottom:12px;
-    position:relative;
-    border-radius:18px 6px 18px 6px;
-    border:2px dashed rgba(244,241,228,0.16);
-    background:
-      linear-gradient(155deg, rgba(244,241,228,0.05), rgba(244,241,228,0.008) 60%),
-      rgba(0,0,0,0.08);
-    box-shadow:0 6px 18px -6px rgba(0,0,0,0.35);
-    transition:background .2s ease, transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-  }
-  .row:nth-child(odd){ transform:rotate(-0.25deg); }
-  .row:nth-child(even){ transform:rotate(0.25deg); }
-  .row:last-child{margin-bottom:0;}
-  .row:hover{
-    background:
-      linear-gradient(155deg, rgba(244,241,228,0.08), rgba(244,241,228,0.015) 60%),
-      rgba(0,0,0,0.1);
-    border-color:rgba(244,241,228,0.3);
-    transform:translateX(2px) rotate(0deg);
-    box-shadow:0 10px 24px -8px rgba(0,0,0,0.45);
-  }
-  .row.class-row{cursor:pointer;}
-
-  .row.now{
-    animation:flipIn .38s ease both;
-    background:
-      linear-gradient(155deg, rgba(242,201,76,0.14), rgba(242,201,76,0.03) 60%),
-      rgba(0,0,0,0.08);
-    border-color:var(--amber);
-    box-shadow:0 10px 26px -8px rgba(242,201,76,0.25);
-  }
-  .row.now::before{
-    content:"";
-    position:absolute;
-    inset:2px;
-    border:2.5px dashed var(--amber);
-    border-radius:16px 6px 16px 6px;
-    opacity:.85;
-    animation:chalkWobble 3.4s ease-in-out infinite;
-    pointer-events:none;
-  }
-  .row.now::after{
-    content:"★";
-    position:absolute;
-    top:-9px; right:6px;
-    font-size:13px;
-    color:var(--amber);
-    transform:rotate(-8deg);
-  }
-  @keyframes chalkWobble{
-    0%,100%{ transform:rotate(-0.4deg) scale(1); opacity:.8; }
-    50%{ transform:rotate(0.4deg) scale(1.004); opacity:1; }
-  }
-
-  .time{
-    font-family:'Space Mono',monospace;
-    font-size:12.5px;
-    line-height:1.35;
-    color:#c7d6cd;
-    letter-spacing:0.5px;
-  }
-  .row.now .time{color:var(--amber);}
-
-  .seq{
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    color:var(--off-day);
-    display:block;
-    margin-bottom:3px;
-  }
-
-  .subject-wrap{min-width:0;}
-  .chip{
-    display:inline-block;
-    position:relative;
-    overflow:hidden;
-    font-family:'Inter',sans-serif;
-    font-weight:700;
-    font-size:12.5px;
-    letter-spacing:0.1px;
-    color:var(--ink);
-    padding:6px 12px;
-    border-radius:12px 4px 12px 4px;
-    line-height:1.2;
-    max-width:100%;
-    box-shadow:0 4px 12px -3px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .row:hover .chip{ transform:translateY(-1px) rotate(-0.6deg); box-shadow:0 6px 16px -3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
-  .chip::after{
-    content:"";
-    position:absolute; inset:0;
-    background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 48%, transparent 65%);
-    transform:translateX(-120%);
-  }
-  .row.now .chip::after{ animation:chipSheen 3.2s ease-in-out infinite; }
-  @keyframes chipSheen{
-    0%{ transform:translateX(-120%); }
-    35%,100%{ transform:translateX(120%); }
-  }
-  .faculty{
-    display:block;
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    color:var(--off-day);
-    margin-top:7px;
-    letter-spacing:1px;
-  }
-
-  .gate{
-    font-family:'Space Mono',monospace;
-    text-align:right;
-  }
-  .gate .lbl{display:block; font-size:8.5px; color:var(--off-day); letter-spacing:1.5px; margin-bottom:3px;}
-  .gate .num{
-    font-size:14px;
-    font-weight:700;
-    color:var(--paper);
-    border:2px dashed rgba(244,241,228,0.32);
-    background:rgba(0,0,0,0.15);
-    border-radius:8px 3px 8px 3px;
-    padding:4px 8px;
-    display:inline-block;
-    box-shadow:inset 0 1px 0 rgba(244,241,228,0.06);
-  }
-  .row.now .gate .num{border-color:var(--amber); color:var(--amber); border-style:solid; background:rgba(242,201,76,0.1);}
-
-  /* ---------- break time row ---------- */
-  .row.break{
-    opacity:.72;
-    padding:12px 14px;
-    background:rgba(0,0,0,0.05);
-    box-shadow:none;
-  }
-  .row.break:hover{ transform:none; background:rgba(0,0,0,0.05); border-color:rgba(244,241,228,0.16); box-shadow:none; }
-  .row.break .time{color:var(--off-day);}
-  .break-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:1.5px;
-    color:var(--off-day);
-    padding:5px 11px;
-    border:2px dashed rgba(244,241,228,0.22);
-    border-radius:12px 4px 12px 4px;
-  }
-
-  /* ---------- test / note badge ---------- */
-  .row.has-note{
-    border-color:color-mix(in srgb, var(--c-lpl, #f2965a) 55%, transparent);
-    background:
-      linear-gradient(155deg, rgba(242,150,90,0.1), rgba(244,241,228,0.008) 60%),
-      rgba(0,0,0,0.08);
-  }
-  .note-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    font-family:'Space Mono',monospace;
-    font-weight:700;
-    font-size:10px;
-    letter-spacing:1px;
-    color:#f2965a;
-    margin-top:6px;
-    padding:2px 8px;
-    border:1.5px dashed rgba(242,150,90,0.55);
-    border-radius:8px 3px 8px 3px;
-  }
-  .tap-hint{
-    display:inline-block;
-    margin-top:6px;
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:1px;
-    color:var(--off-day);
-  }
-
-  .select-card input[type="text"]{
-    width:100%;
-    background:transparent;
-    border:none;
-    border-bottom:2px dashed rgba(244,241,228,0.35);
-    color:var(--paper);
-    font-family:'Kalam',cursive;
-    font-size:20px;
-    text-align:center;
-    padding:8px 4px 12px;
-    outline:none;
-    transition:border-color .18s ease;
-  }
-  .select-card input[type="text"]:focus{border-color:var(--amber);}
-  .select-card input[type="text"]::placeholder{color:var(--off-day); opacity:.6;}
-  .select-options.note-actions button{
-    font-family:'Space Mono',monospace;
-    font-size:12px;
-    letter-spacing:1px;
-    padding:14px 8px;
-  }
-
-  .status-banner{
-    margin:14px 16px 0;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:1px;
-    color:var(--accent-next);
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 12px;
-    background:color-mix(in srgb, var(--accent-next) 10%, transparent);
-    border:2px dashed color-mix(in srgb, var(--accent-next) 55%, transparent);
-    border-radius:10px 3px 10px 3px;
-    animation:fadeSlideUp .4s ease both;
-  }
-  .status-banner .blink{
-    width:6px;height:6px;border-radius:50%;background:var(--accent-next);
-    box-shadow:0 0 8px color-mix(in srgb, var(--accent-next) 70%, transparent);
-    animation:blink 1.4s infinite;
-  }
-  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
-
-  footer.note{
-    text-align:center;
-    padding:28px 20px 0;
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    color:var(--off-day);
-    letter-spacing:1.5px;
-    line-height:2.1;
-    animation:fadeSlideUp .6s ease both .1s;
-  }
-  footer.note b{
-    display:block;
-    font-family:'Kalam',cursive;
-    color:var(--amber);
-    font-size:14px;
-    letter-spacing:0.5px;
-    font-weight:700;
-  }
-
-  .update-tag{
-    display:block;
-    margin-top:14px;
-    padding-top:10px;
-    border-top:1px dashed rgba(244,241,228,0.16);
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    color:var(--off-day);
-    letter-spacing:1.2px;
-  }
-  .update-tag .ver{color:var(--amber-dim); font-weight:700;}
-  .update-tag .lbl2{color:var(--off-day);}
-
-  /* flip-in animation when switching days */
-  @keyframes flipIn{
-    0%{ transform:rotateX(90deg); opacity:0; }
-    60%{ transform:rotateX(-8deg); opacity:1; }
-    100%{ transform:rotateX(0); opacity:1; }
-  }
-  .row, .empty-day{
-    transform-origin:top center;
-    animation:flipIn .38s ease both;
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *, *::before, *::after{
-      animation-duration:0.001ms !important;
-      animation-iteration-count:1 !important;
-      transition-duration:0.001ms !important;
-    }
-    body::before, body::after{display:none;}
-  }
-
-   
-  .select-overlay{
-    position:fixed;
-    inset:0;
-    background:
-      radial-gradient(ellipse 60% 45% at 50% 0%, rgba(242,201,76,0.07), transparent 65%),
-      var(--board-bg);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:50;
-    padding:24px;
-    animation:overlayFade .3s ease both;
-    overflow-y:auto;
-  }
-  @keyframes overlayFade{ 0%{opacity:0;} 100%{opacity:1;} }
-  .select-card{
-    max-width:380px;
-    width:100%;
-    text-align:center;
-    animation:cardRise .45s cubic-bezier(.2,.8,.2,1) both;
-    margin:auto;
-  }
-  @keyframes cardRise{
-    0%{ opacity:0; transform:translateY(18px) scale(.98); }
-    100%{ opacity:1; transform:translateY(0) scale(1); }
-  }
-  .select-card .kicker{
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    letter-spacing:3px;
-    color:var(--amber-dim);
-    margin-bottom:12px;
-  }
-  .select-card h2{
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:28px;
-    margin:0 0 8px;
-    color:var(--paper);
-    transform:rotate(-0.5deg);
-  }
-  .select-card p{
-    font-family:'Space Mono',monospace;
-    font-size:11.5px;
-    color:var(--off-day);
-    line-height:1.7;
-    margin:0 0 30px;
-    letter-spacing:0.5px;
-  }
-  .select-options{
-    display:flex;
-    gap:14px;
-  }
-  .select-options.three button{font-size:20px;}
-  .select-options button{
-    flex:1;
-    padding:24px 8px;
-    border-radius:16px 6px 16px 6px;
-    border:2.5px dashed rgba(244,241,228,0.3);
-    background:var(--board-bg-2);
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:28px;
-    color:var(--paper);
-    cursor:pointer;
-    transition:border-color .18s ease, color .18s ease, transform .18s ease, background .18s ease;
-    animation:fadeSlideUp .4s ease both;
-  }
-  .select-options button:nth-child(1){animation-delay:.04s;}
-  .select-options button:nth-child(2){animation-delay:.1s;}
-  .select-options button:nth-child(3){animation-delay:.16s;}
-  .select-options button:hover,
-  .select-options button:active{
-    border-color:var(--amber);
-    border-style:solid;
-    color:var(--amber);
-    background:rgba(242,201,76,0.08);
-    transform:translateY(-3px) rotate(-0.8deg);
-  }
-  .select-options .tag{
-    display:block;
-    font-family:'Space Mono',monospace;
-    font-size:9px;
-    letter-spacing:1.5px;
-    color:var(--off-day);
-    margin-top:6px;
-  }
-  #installAppBtn{
-    animation:installPulse 2.4s ease-in-out infinite;
-    transition:transform .15s ease;
-  }
-  #installAppBtn:hover{ transform:translateX(-50%) scale(1.04); }
-  @keyframes installPulse{
-    0%,100%{ box-shadow:0 6px 18px rgba(0,0,0,.4), 0 0 0 rgba(242,201,76,0); }
-    50%{ box-shadow:0 6px 18px rgba(0,0,0,.4), 0 0 16px rgba(242,201,76,0.55); }
-  }
-
-  .back-link{
-    display:inline-block;
-    margin-top:22px;
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:1px;
-    color:var(--off-day);
-    text-decoration:underline;
-    text-decoration-style:dashed;
-    cursor:pointer;
-    background:none;
-    border:none;
-  }
-
-  /* ---------- header icon toolbar ---------- */
-  .icon-toolbar{
-    display:flex;
-    gap:8px;
-    margin-top:14px;
-    animation:fadeSlideUp .5s ease both .1s;
-    flex-wrap:wrap;
-  }
-  .icon-btn{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:1px;
-    color:var(--off-day);
-    background:rgba(244,241,228,0.05);
-    border:2px dashed var(--amber-dim);
-    border-radius:12px 4px 12px 4px;
-    padding:6px 10px;
-    cursor:pointer;
-    transition:border-color .18s ease, color .18s ease, background .18s ease;
-  }
-  .icon-btn:hover{ border-color:var(--amber); color:var(--amber); background:rgba(244,241,228,0.09); }
-  .icon-btn.on{ border-style:solid; border-color:var(--amber); color:var(--amber); background:rgba(242,201,76,0.1); }
-  .icon-btn .count{
-    background:var(--amber);
-    color:var(--ink);
-    font-weight:700;
-    border-radius:999px;
-    padding:0 5px;
-    font-size:9px;
-    line-height:14px;
-    min-width:14px;
-    text-align:center;
-  }
-
-  /* distinct accent per toolbar action, so they read apart at a glance */
-  #pinnedBtn{ border-color:color-mix(in srgb, var(--accent-notes) 55%, transparent); color:var(--accent-notes); }
-  #pinnedBtn:hover{ border-color:var(--accent-notes); background:color-mix(in srgb, var(--accent-notes) 12%, transparent); }
-  #pinnedBtn .count{ background:var(--accent-notes); color:var(--ink); }
-
-  #notifyBtn{ border-color:color-mix(in srgb, var(--accent-remind) 55%, transparent); color:var(--accent-remind); }
-  #notifyBtn:hover{ border-color:var(--accent-remind); background:color-mix(in srgb, var(--accent-remind) 12%, transparent); }
-  #notifyBtn.on{ border-style:solid; border-color:var(--accent-remind); color:var(--accent-remind); background:color-mix(in srgb, var(--accent-remind) 14%, transparent); }
-
-  #attendBtn{ border-color:color-mix(in srgb, var(--accent-attend) 55%, transparent); color:var(--accent-attend); }
-  #attendBtn:hover{ border-color:var(--accent-attend); background:color-mix(in srgb, var(--accent-attend) 12%, transparent); }
-
-  #examBtn{ border-color:color-mix(in srgb, var(--accent-exam) 55%, transparent); color:var(--accent-exam); }
-  #examBtn:hover{ border-color:var(--accent-exam); background:color-mix(in srgb, var(--accent-exam) 12%, transparent); }
-
-  /* ---------- stats strip ---------- */
-  .stats-strip{
-    display:flex;
-    gap:10px;
-    margin:14px 16px 0;
-    animation:fadeSlideUp .4s ease both;
-  }
-  .stat-pill{
-    flex:1;
-    text-align:center;
-    padding:9px 6px;
-    border:2px dashed rgba(244,241,228,0.18);
-    border-radius:10px 3px 10px 3px;
-    font-family:'Space Mono',monospace;
-  }
-  .stat-pill .n{
-    display:block;
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:18px;
-    color:var(--amber);
-    line-height:1.2;
-  }
-  .stat-pill .l{
-    display:block;
-    font-size:8.5px;
-    letter-spacing:1.2px;
-    color:var(--off-day);
-    margin-top:2px;
-  }
-  .stat-pill:nth-child(1) .n{ color:var(--accent-stat-classes); }
-  .stat-pill:nth-child(2) .n{ color:var(--accent-stat-time); }
-  .stat-pill:nth-child(3) .n{ color:var(--accent-stat-free); }
-  .stat-pill:nth-child(4) .n{ color:var(--accent-stat-span); }
-
-  .countdown{
-    font-weight:700;
-    color:var(--accent-next);
-    background:color-mix(in srgb, var(--accent-next) 16%, transparent);
-    border-radius:6px;
-    padding:1px 6px;
-    margin-left:2px;
-    letter-spacing:0.5px;
-  }
-
-  /* ---------- overall note (one general note, independent of the day tab) ---------- */
-  .day-note{
-    margin:22px 16px 0;
-    position:relative;
-    border-radius:18px 6px 18px 6px;
-    padding:16px 18px 18px;
-    background:
-      linear-gradient(155deg, rgba(244,241,228,0.09), rgba(244,241,228,0.02) 55%),
-      var(--board-bg-2);
-    border:2px solid color-mix(in srgb, var(--accent-notes) 45%, transparent);
-    box-shadow:
-      0 10px 26px rgba(0,0,0,0.28),
-      inset 0 1px 0 rgba(244,241,228,0.06);
-    transform:rotate(-0.4deg);
-    animation:fadeSlideUp .4s ease both;
-    transition:background-color .8s ease, border-color .8s ease;
-  }
-  .day-note::before{
-    /* little pin / tape accent at the top */
-    content:"";
-    position:absolute;
-    top:-9px; left:22px;
-    width:34px; height:16px;
-    background:var(--accent-notes);
-    opacity:.9;
-    border-radius:3px;
-    transform:rotate(-4deg);
-    box-shadow:0 3px 6px rgba(0,0,0,0.3);
-  }
-  .day-note .dn-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .day-note .dn-title{
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:2px;
-    color:var(--accent-notes);
-    font-weight:700;
-  }
-  .day-note .dn-edit-btn{
-    background:rgba(244,241,228,0.06);
-    border:1.5px dashed color-mix(in srgb, var(--accent-notes) 45%, transparent);
-    color:var(--accent-notes);
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:1px;
-    padding:5px 10px;
-    border-radius:8px 3px 8px 3px;
-    cursor:pointer;
-    transition:border-color .2s ease, background .2s ease, color .2s ease;
-  }
-  .day-note .dn-edit-btn:hover{ border-color:var(--accent-notes); background:rgba(244,241,228,0.1); }
-  .day-note .dn-text{
-    margin-top:10px;
-    font-family:'Kalam',cursive;
-    font-size:16px;
-    line-height:1.6;
-    color:var(--paper);
-    white-space:pre-wrap;
-    word-break:break-word;
-  }
-  .day-note .dn-empty{
-    margin-top:10px;
-    font-family:'Kalam',cursive;
-    font-size:14px;
-    color:var(--off-day);
-    letter-spacing:0.2px;
-    line-height:1.5;
-  }
-  .day-note textarea{
-    width:100%;
-    margin-top:12px;
-    background:rgba(0,0,0,0.12);
-    border:2px dashed color-mix(in srgb, var(--accent-notes) 45%, transparent);
-    border-radius:12px 3px 12px 3px;
-    color:var(--paper);
-    font-family:'Kalam',cursive;
-    font-size:16px;
-    padding:12px;
-    resize:vertical;
-    min-height:80px;
-    outline:none;
-    transition:border-color .2s ease;
-  }
-  .day-note textarea:focus{ border-color:var(--accent-notes); }
-  .day-note .dn-actions{
-    display:flex;
-    gap:10px;
-    margin-top:12px;
-    flex-wrap:wrap;
-  }
-  .day-note .dn-actions button{
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:1px;
-    padding:9px 14px;
-    border-radius:10px 3px 10px 3px;
-    border:2px dashed rgba(244,241,228,0.3);
-    background:none;
-    color:var(--paper);
-    cursor:pointer;
-    transition:border-color .2s ease, color .2s ease;
-  }
-  .day-note .dn-actions button:hover{ border-color:var(--accent-notes); color:var(--accent-notes); }
-  .day-note .dn-actions button#dnSaveBtn{
-    border-color:var(--accent-notes);
-    color:var(--accent-notes);
-    background:color-mix(in srgb, var(--accent-notes) 14%, transparent);
-  }
-
-  /* ---------- pinned notes overview ---------- */
-  .pinned-list{
-    text-align:left;
-    max-height:52vh;
-    overflow-y:auto;
-    margin-top:6px;
-  }
-  .pinned-item{
-    border:1.5px dashed rgba(244,241,228,0.22);
-    border-radius:10px 3px 10px 3px;
-    padding:10px 12px;
-    margin-bottom:10px;
-    cursor:pointer;
-    transition:border-color .15s ease, background .15s ease;
-  }
-  .pinned-item:hover{ border-color:var(--amber); background:rgba(244,241,228,0.05); }
-  .pinned-item .pi-day{
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:1.5px;
-    color:var(--amber);
-  }
-  .pinned-item .pi-sub{
-    font-family:'Space Mono',monospace;
-    font-size:9px;
-    letter-spacing:1px;
-    color:var(--off-day);
-    margin-top:3px;
-  }
-  .pinned-item .pi-text{
-    font-family:'Kalam',cursive;
-    font-size:14px;
-    color:var(--paper);
-    margin-top:4px;
-  }
-  .pinned-empty{
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    color:var(--off-day);
-    text-align:center;
-    padding:20px 0;
-  }
-
-  /* ---------- toast ---------- */
-  .toast{
-    position:fixed;
-    left:50%;
-    bottom:88px;
-    transform:translateX(-50%) translateY(12px);
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Space Mono',monospace;
-    font-size:11.5px;
-    letter-spacing:0.5px;
-    padding:10px 18px;
-    border-radius:999px;
-    box-shadow:0 8px 20px rgba(0,0,0,.35);
-    z-index:9999;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .25s ease, transform .25s ease;
-  }
-  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-
-  /* ---------- subject detail page ---------- */
-  .subj-meta{
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.5px;
-    color:var(--off-day);
-    margin:-16px 0 20px;
-  }
-  .subj-section{
-    text-align:left;
-    margin-top:18px;
-    position:relative;
-    border-radius:18px 6px 18px 6px;
-    padding:16px 18px 18px;
-    background:
-      linear-gradient(155deg, rgba(244,241,228,0.09), rgba(244,241,228,0.02) 55%),
-      var(--board-bg-2);
-    border:2px solid var(--amber-dim);
-    box-shadow:
-      0 10px 26px rgba(0,0,0,0.28),
-      inset 0 1px 0 rgba(244,241,228,0.06);
-    transform:rotate(-0.35deg);
-    transition:background-color .8s ease, border-color .8s ease;
-  }
-  .subj-section:nth-of-type(2){ transform:rotate(0.35deg); }
-  .subj-section::before{
-    content:"";
-    position:absolute;
-    top:-9px; left:22px;
-    width:34px; height:16px;
-    background:var(--amber);
-    opacity:.9;
-    border-radius:3px;
-    transform:rotate(-4deg);
-    box-shadow:0 3px 6px rgba(0,0,0,0.3);
-  }
-  .subj-section .dn-title{
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:2px;
-    color:var(--amber);
-    font-weight:700;
-    display:block;
-    margin-bottom:10px;
-  }
-  .subj-section textarea{
-    width:100%;
-    background:rgba(0,0,0,0.12);
-    border:2px dashed var(--amber-dim);
-    border-radius:12px 3px 12px 3px;
-    color:var(--paper);
-    font-family:'Kalam',cursive;
-    font-size:16px;
-    padding:12px;
-    resize:vertical;
-    min-height:70px;
-    outline:none;
-    transition:border-color .2s ease;
-  }
-  .subj-section textarea:focus{ border-color:var(--amber); }
-  .subj-section .dn-actions{
-    display:flex;
-    gap:10px;
-    margin-top:12px;
-    flex-wrap:wrap;
-  }
-  .subj-section .dn-actions button{
-    font-family:'Space Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:1px;
-    padding:9px 14px;
-    border-radius:10px 3px 10px 3px;
-    border:2px dashed rgba(244,241,228,0.3);
-    background:none;
-    color:var(--paper);
-    cursor:pointer;
-    transition:border-color .2s ease, color .2s ease, background .2s ease;
-  }
-  .subj-section .dn-actions button:hover{ border-color:var(--amber); color:var(--amber); }
-  .subj-section .dn-actions button#subjNoteSave,
-  .subj-section .dn-actions button#subjPresentBtn{
-    border-color:var(--amber);
-    color:var(--amber);
-    background:rgba(242,201,76,0.1);
-  }
-  .subj-section .dn-empty{
-    font-family:'Kalam',cursive;
-    font-size:14px;
-    color:var(--off-day);
-    line-height:1.5;
-  }
-
-  /* ---------- attendance mini bits (used in subject page + overview) ---------- */
-  .attend-badge{
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:0.5px;
-    padding:2px 7px;
-    border-radius:8px 3px 8px 3px;
-    border:1.5px dashed rgba(244,241,228,0.3);
-    color:var(--off-day);
-  }
-  .attend-badge.good{ color:#8fd08f; border-color:rgba(143,208,143,0.55); }
-  .attend-badge.warn{ color:#f2c14e; border-color:rgba(242,193,78,0.55); }
-  .attend-badge.bad{ color:#f28a8a; border-color:rgba(242,138,138,0.55); }
-
-  /* ---------- exam / test radar strip ---------- */
-  .radar-strip{
-    margin:14px 16px 0;
-    padding:9px 12px;
-    border:2px dashed #f2965a;
-    border-radius:10px 3px 10px 3px;
-    background:rgba(242,150,90,0.08);
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.5px;
-    color:#f2965a;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    animation:fadeSlideUp .4s ease both;
-  }
-  .radar-strip b{ color:var(--paper); }
-
-  /* ---------- attendance overview overlay ---------- */
-  .attend-list{ text-align:left; max-height:50vh; overflow-y:auto; margin-top:6px; }
-  .attend-list .ai-row{
-    border:1.5px dashed rgba(244,241,228,0.22);
-    border-radius:10px 3px 10px 3px;
-    padding:10px 12px;
-    margin-bottom:10px;
-  }
-  .attend-list .ai-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-  }
-  .attend-list .ai-name{ color:var(--paper); font-weight:700; }
-  .attend-list .ai-pct{ font-weight:700; }
-  .attend-list .ai-bar{
-    height:6px;
-    border-radius:4px;
-    background:rgba(244,241,228,0.12);
-    margin-top:8px;
-    overflow:hidden;
-  }
-  .attend-list .ai-bar-fill{ height:100%; border-radius:4px; }
-  .attend-list .ai-meta{
-    display:flex;
-    justify-content:space-between;
-    margin-top:6px;
-    font-family:'Space Mono',monospace;
-    font-size:9px;
-    color:var(--off-day);
-    letter-spacing:0.5px;
-  }
-  .attend-list .ai-reset{
-    background:none; border:none; color:var(--off-day);
-    text-decoration:underline; text-decoration-style:dashed;
-    cursor:pointer; font-family:'Space Mono',monospace; font-size:9px;
-  }
-  .attend-list .ai-reset:hover{ color:#f28a8a; }
-
-  /* ---------- exam routine overview overlay ---------- */
-  .exam-tabs{
-    display:flex;
-    gap:8px;
-    margin-top:4px;
-    margin-bottom:16px;
-  }
-  .exam-tabs button{
-    flex:1;
-    font-family:'Space Mono',monospace;
-    font-weight:700;
-    font-size:12px;
-    letter-spacing:1px;
-    padding:9px 6px;
-    border-radius:10px 3px 10px 3px;
-    border:2px dashed rgba(244,241,228,0.3);
-    background:none;
-    color:var(--off-day);
-    cursor:pointer;
-    transition:border-color .18s ease, color .18s ease, background .18s ease;
-  }
-  .exam-tabs button:hover{ color:var(--paper); }
-  .exam-tabs button.active{
-    border-style:solid;
-    border-color:var(--accent-exam);
-    color:var(--accent-exam);
-    background:color-mix(in srgb, var(--accent-exam) 14%, transparent);
-  }
-  .exam-list{ text-align:left; max-height:50vh; overflow-y:auto; margin-top:2px; }
-  .exam-card{
-    display:grid;
-    grid-template-columns:56px 1fr;
-    gap:12px;
-    align-items:center;
-    padding:12px;
-    margin-bottom:10px;
-    border-radius:14px 5px 14px 5px;
-    border:1.5px dashed rgba(244,241,228,0.22);
-    background:rgba(244,241,228,0.03);
-    animation:fadeSlideUp .35s ease both;
-  }
-  .exam-card .ec-date{
-    text-align:center;
-    border-radius:10px 3px 10px 3px;
-    padding:7px 2px;
-    color:#132720;
-    font-family:'Space Mono',monospace;
-  }
-  .exam-card .ec-date .ec-dow{ display:block; font-size:8px; font-weight:700; letter-spacing:1px; opacity:.85; }
-  .exam-card .ec-date .ec-num{ display:block; font-family:'Kalam',cursive; font-size:19px; font-weight:700; line-height:1.15; }
-  .exam-card .ec-date .ec-mon{ display:block; font-size:8px; font-weight:700; letter-spacing:1px; opacity:.85; }
-  .exam-card .ec-seq{
-    font-family:'Space Mono',monospace;
-    font-size:9px;
-    letter-spacing:1.5px;
-    color:var(--off-day);
-  }
-  .exam-card .ec-subj{
-    font-family:'Inter',sans-serif;
-    font-weight:700;
-    font-size:13.5px;
-    color:var(--paper);
-    margin-top:2px;
-  }
-  .exam-card .ec-code{
-    display:inline-block;
-    margin-top:5px;
-    font-family:'Space Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:0.5px;
-    padding:2px 8px;
-    border-radius:8px 3px 8px 3px;
-    border:1.5px dashed rgba(244,241,228,0.3);
-    color:var(--off-day);
-  }
-  .exam-card .ec-time{
-    display:block;
-    margin-top:6px;
-    font-family:'Space Mono',monospace;
-    font-weight:700;
-    font-size:10.5px;
-    letter-spacing:0.5px;
-    color:var(--paper);
-  }
-  .exam-empty{
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    color:var(--off-day);
-    text-align:center;
-    padding:20px 0;
-  }
-  .exam-summary{
-    font-family:'Space Mono',monospace;
-    font-size:10px;
-    letter-spacing:1px;
-    color:var(--off-day);
-    text-align:center;
-    margin-bottom:14px;
-  }
-  .exam-summary b{ color:var(--accent-exam); }
-
-  /* =========================================================
-     SPLASH INTRO — table lamp with a pull cord. Drag the bead
-     down to switch the light on, then the title pops in
-     letter by letter, then a confetti burst hands off to the
-     main app.
-     ========================================================= */
-  html.splash-lock, html.splash-lock body{ overflow:hidden; height:100%; }
-
-  #splashScreen{
-    position:fixed;
-    inset:0;
-    z-index:2000;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    background:
-      radial-gradient(ellipse 70% 55% at 50% 30%, rgba(242,201,76,0.05), transparent 65%),
-      var(--board-bg);
-    transition:opacity .5s ease, background-color .8s ease;
-    overflow:hidden;
-    touch-action:none;
-  }
-  #splashScreen.fading{ opacity:0; pointer-events:none; }
-
-  .splash-lamp-wrap{
-    position:relative;
-    width:240px;
-    max-width:70vw;
-  }
-  .lamp-svg{ width:100%; height:auto; display:block; overflow:visible; }
-  #lampShade{ transition:filter .35s ease; }
-  #lampGlow{ opacity:0; }
-  #cordBead{ touch-action:none; }
-
-  .splash-hint{
-    margin-top:2px;
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:2px;
-    color:var(--off-day);
-    opacity:.85;
-    transition:opacity .3s ease;
-    animation:hintSway 1.8s ease-in-out infinite;
-  }
-  @keyframes hintSway{
-    0%,100%{ transform:translateY(0); }
-    50%{ transform:translateY(3px); }
-  }
-
-  .splash-title{
-    margin-top:18px;
-    font-family:'Kalam',cursive;
-    font-weight:700;
-    font-size:clamp(28px,8vw,40px);
-    letter-spacing:1px;
-    color:var(--amber);
-    min-height:1.3em;
-    display:flex;
-  }
-  .splash-letter{
-    display:inline-block;
-    opacity:0;
-    transform:scale(0.2) translateY(14px) rotate(-8deg);
-    animation:letterPop .5s cubic-bezier(.2,1.6,.4,1) forwards;
-    text-shadow:0 0 18px rgba(242,201,76,0.35);
-  }
-  @keyframes letterPop{
-    0%{ opacity:0; transform:scale(0.2) translateY(14px) rotate(-8deg); }
-    60%{ opacity:1; transform:scale(1.18) translateY(-3px) rotate(2deg); }
-    100%{ opacity:1; transform:scale(1) translateY(0) rotate(0deg); }
-  }
-
-  .confetti-piece{
-    position:fixed;
-    top:38%;
-    left:50%;
-    width:8px;
-    height:12px;
-    border-radius:2px;
-    opacity:1;
-    z-index:2001;
-    pointer-events:none;
-    animation:confettiFall 1.15s cubic-bezier(.2,.7,.4,1) forwards;
-  }
-  @keyframes confettiFall{
-    0%{ transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(1); opacity:1; }
-    100%{ transform:translate(-50%,-50%) translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(0.6); opacity:0; }
-  }
-
+/* sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+.sheet-wrap.open{display:flex}
+.sheet{width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:var(--bg2);border-radius:26px 26px 0 0;padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 16px}
+.sheet h2{font-family:var(--head);font-size:24px;margin:0 0 4px;letter-spacing:-.3px}
+.sheet .sub{color:var(--mut);font-size:14px;margin:0 0 16px}
+.sec{margin-top:14px;padding:14px;border-radius:16px;background:rgba(0,0,0,.18);border:1px solid var(--line)}
+.sec h4{margin:0 0 8px;font-family:var(--head);font-size:14px}
+.bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;border-radius:4px}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-top:6px}
+.pick button{padding:20px 8px;border-radius:18px;border:1px solid var(--line);background:var(--card);font-family:var(--head);font-weight:700;font-size:26px}
+.pick button:active{background:var(--ac);color:#17211c}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+.item{padding:12px 14px;margin-bottom:10px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid var(--line);cursor:pointer}
+.item small{display:block;color:var(--mut);font-size:12.5px}
+.item .tx{margin-top:4px;font-size:15px}
+.txt-link{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:13px;padding:0}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);background:var(--ink);color:#17211c;font-size:14px;padding:9px 18px;border-radius:999px;z-index:99;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-
-<div id="splashScreen">
-  <div class="splash-lamp-wrap">
-    <svg class="lamp-svg" viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-      <defs>
-        <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fff3c4" stop-opacity="0.95"/>
-          <stop offset="100%" stop-color="#fff3c4" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <ellipse id="lampGlow" cx="150" cy="130" rx="150" ry="150" fill="url(#glowGrad)"/>
-      <path id="lampShade" d="M55 115 A95 75 0 0 1 245 115 Z" fill="#eceadd"/>
-      <ellipse cx="150" cy="115" rx="95" ry="17" fill="#c9a45a" opacity="0.55"/>
-      <rect x="140" y="115" width="20" height="150" rx="3" fill="#cfcac0"/>
-      <rect x="85" y="263" width="160" height="16" rx="8" fill="#cfcac0"/>
-      <line id="cordLine" x1="188" y1="122" x2="188" y2="222" stroke="#7a7a72" stroke-width="2.5"/>
-      <circle id="cordBead" cx="188" cy="222" r="10" fill="#e0a37e"/>
-    </svg>
-  </div>
-  <div class="splash-hint" id="splashHint">সুতোয় টান দাও ✦ pull the cord</div>
-  <div class="splash-title" id="splashTitle"></div>
-</div>
-
-<div id="selectOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="selectCardInner"></div>
-</div>
-
-<div id="subjectOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="subjectCardInner" style="max-width:440px;"></div>
-</div>
-
-<div id="pinnedOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="pinnedCardInner" style="max-width:440px;"></div>
-</div>
-
-<div id="attendOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="attendCardInner" style="max-width:440px;"></div>
-</div>
-
-<div id="examOverlay" class="select-overlay" style="display:none;">
-  <div class="select-card" id="examCardInner" style="max-width:440px;"></div>
-</div>
-
-
-<div id="toast" class="toast"></div>
-
-<div class="board-frame">
-  <header class="hero">
-    <h1 id="pageTitle">CLASS ROUTINE</h1>
-    <div class="subhead">
-      <span>DAY-WISE · SERIAL BY TIME</span>
-      <span id="clock">—</span>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1 id="title">Class routine</h1>
+      <div class="grp"><span id="grpLine"></span><button class="chg" id="changeBtn" style="display:none">Change</button></div>
     </div>
-    <div id="sectionBadge"></div>
-    <div class="icon-toolbar">
-      <button class="icon-btn" id="pinnedBtn" title="All notes">📌 NOTES <span class="count" id="pinnedCount">0</span></button>
-      <button class="icon-btn" id="notifyBtn" title="Class reminders">🔔 REMIND</button>
-      <button class="icon-btn" id="attendBtn" title="Attendance tracker">📊 ATTENDANCE</button>
-      <button class="icon-btn" id="examBtn" title="Midterm exam routine">📝 EXAMS</button>
-    </div>
+    <div class="clock"><b id="clockT">—</b><span id="clockD"></span></div>
   </header>
-
-  <nav class="days" id="dayNav"></nav>
-
-  <div class="status-banner" id="statusBanner" style="display:none;">
-    <span class="blink"></span>
-    <span id="statusText"></span>
-  </div>
-
-  <div id="radarStrip"></div>
-
-  <div class="board" id="board"></div>
-
-  <div class="day-note" id="overallNoteSection"></div>
-
-  <div class="stats-strip" id="statsStrip" style="display:none;"></div>
-
-  <footer class="note">
-    <b>MADE BY MAHIM AHMED RAHIM</b>
-    CSE DEPARTMENT
-    <span class="update-tag" id="updateTag"></span>
-  </footer>
+  <nav class="days" id="dayNav" aria-label="Days"></nav>
+  <div class="live" id="live" style="display:none"><span class="pulse"></span><div><small id="stTag"></small><b id="stName"></b></div><time id="stCd"></time></div>
+  <div class="stats" id="stats" style="display:none"></div>
+  <main class="list" id="board"></main>
+  <section class="mynote" id="myNote"></section>
+  <footer class="foot"><b>Made by Mahim Ahmed Rahim</b>CSE Department<br><span id="upd"></span></footer>
 </div>
+
+<nav class="nav" aria-label="Tools">
+  <button id="bNotes"><i>📌</i>Notes<span class="cnt" id="cnt">0</span></button>
+  <button id="bRemind"><i>🔔</i>Reminders</button>
+</nav>
+<button id="installAppBtn">📲 Install app</button>
+<div class="sheet-wrap" id="sheet"><div class="sheet" id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-const SPLASH_SEEN_KEY = "classRoutineSplashSeenDate";
-function todayKey(){
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-}
-const splashAlreadySeen = localStorage.getItem(SPLASH_SEEN_KEY) === todayKey();
-
-if(!splashAlreadySeen){
-  document.documentElement.classList.add("splash-lock");
-} else {
-  const splashEl = document.getElementById("splashScreen");
-  if(splashEl) splashEl.style.display = "none";
-}
-
-/* =========================================================
-   SPLASH INTRO — pull the lamp cord to switch it on, then
-   "CLASS ROUTINE" pops in letter by letter, then confetti,
-   then hand off into the main app underneath.
-   Shown once per day — first open of the day plays it,
-   later opens the same day skip straight to the app.
-   Next day it plays again on the first open.
-   ========================================================= */
-(function initSplash(){
-  if(splashAlreadySeen) return;
-  const splash = document.getElementById("splashScreen");
-  const hint = document.getElementById("splashHint");
-  const titleEl = document.getElementById("splashTitle");
-  const bead = document.getElementById("cordBead");
-  const cordLine = document.getElementById("cordLine");
-  const glow = document.getElementById("lampGlow");
-  const shade = document.getElementById("lampShade");
-  if(!splash || !bead) return;
-
-  const BEAD_Y0 = 222;
-  const MAX_DRAG = 78;
-  const PULL_THRESHOLD = 42;
-
-  let dragging = false;
-  let startY = 0;
-  let turnedOn = false;
-
-  function setBeadY(y){
-    bead.setAttribute("cy", y);
-    cordLine.setAttribute("y2", y);
-  }
-
-  function animateTo(target, done){
-    const from = parseFloat(bead.getAttribute("cy"));
-    const dist = target - from;
-    if(Math.abs(dist) < 0.5){ setBeadY(target); if(done) done(); return; }
-    const duration = 260;
-    const start = performance.now();
-    function step(t){
-      const p = Math.min(1, (t - start) / duration);
-      // slight overshoot spring easing
-      const eased = p < 1 ? 1 - Math.pow(1 - p, 3) : 1;
-      setBeadY(from + dist * eased);
-      if(p < 1){ requestAnimationFrame(step); }
-      else { setBeadY(target); if(done) done(); }
-    }
-    requestAnimationFrame(step);
-  }
-
-  function pointerY(e){
-    return e.touches ? e.touches[0].clientY : e.clientY;
-  }
-
-  function onDown(e){
-    if(turnedOn) return;
-    dragging = true;
-    startY = pointerY(e);
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("touchmove", onMove, {passive:false});
-    window.addEventListener("touchend", onUp);
-  }
-  function onMove(e){
-    if(!dragging) return;
-    if(e.cancelable) e.preventDefault();
-    const delta = Math.max(0, Math.min(MAX_DRAG, pointerY(e) - startY));
-    setBeadY(BEAD_Y0 + delta);
-  }
-  function onUp(){
-    if(!dragging) return;
-    dragging = false;
-    window.removeEventListener("pointermove", onMove);
-    window.removeEventListener("pointerup", onUp);
-    window.removeEventListener("touchmove", onMove);
-    window.removeEventListener("touchend", onUp);
-    const delta = parseFloat(bead.getAttribute("cy")) - BEAD_Y0;
-    if(delta >= PULL_THRESHOLD){
-      animateTo(BEAD_Y0 + 18, ()=> animateTo(BEAD_Y0));
-      turnOn();
-    } else {
-      animateTo(BEAD_Y0);
-    }
-  }
-
-  bead.addEventListener("pointerdown", onDown);
-  bead.addEventListener("touchstart", onDown, {passive:true});
-  // also allow a plain tap/click on the cord or bead as a shortcut
-  bead.addEventListener("click", ()=>{ if(!dragging && !turnedOn) turnOn(); });
-
-  function turnOn(){
-    if(turnedOn) return;
-    turnedOn = true;
-    hint.style.opacity = "0";
-    glow.style.transition = "opacity .4s ease";
-    glow.style.opacity = "1";
-    shade.style.filter = "brightness(1.35) saturate(1.05)";
-    setTimeout(popTitle, 380);
-  }
-
-  function popTitle(){
-    const text = "CLASS ROUTINE";
-    titleEl.innerHTML = "";
-    const letters = text.split("");
-    letters.forEach((ch, i)=>{
-      const span = document.createElement("span");
-      span.className = "splash-letter";
-      span.textContent = ch === " " ? "\u00A0" : ch;
-      span.style.animationDelay = (i * 0.055) + "s";
-      titleEl.appendChild(span);
-    });
-    const popDuration = letters.length * 55 + 550;
-    setTimeout(confettiBurst, popDuration);
-    setTimeout(finishSplash, popDuration + 1250);
-  }
-
-  function confettiBurst(){
-    const colors = ["#f2c94c","#c9a6f2","#8ecbf2","#9bd67f","#f2965a","#7fd9c4","#f2a6c5"];
-    const count = 46;
-    for(let i = 0; i < count; i++){
-      const piece = document.createElement("div");
-      piece.className = "confetti-piece";
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 90 + Math.random() * 220;
-      const dx = Math.cos(angle) * dist;
-      const dy = Math.sin(angle) * dist - 40; // slight upward bias
-      piece.style.setProperty("--dx", dx.toFixed(0) + "px");
-      piece.style.setProperty("--dy", dy.toFixed(0) + "px");
-      piece.style.setProperty("--rot", (Math.random() * 560 - 280).toFixed(0) + "deg");
-      piece.style.background = colors[i % colors.length];
-      piece.style.left = "50%";
-      piece.style.top = "40%";
-      piece.style.animationDelay = (Math.random() * 0.12) + "s";
-      piece.style.animationDuration = (0.9 + Math.random() * 0.5) + "s";
-      splash.appendChild(piece);
-      setTimeout(()=> piece.remove(), 1700);
-    }
-  }
-
-  function finishSplash(){
-    localStorage.setItem(SPLASH_SEEN_KEY, todayKey());
-    splash.classList.add("fading");
-    document.documentElement.classList.remove("splash-lock");
-    setTimeout(()=>{ splash.style.display = "none"; }, 520);
-  }
-})();
-
-const THEME_BY_DOW = ["sun","mon","tue","wed","thu","fri","sat"];
-const THEME_COLORS = {
-  sun:"#1c3a30", mon:"#182849", tue:"#3a1c28",
-  wed:"#271c3a", thu:"#123a35", fri:"#24262b", sat:"#3a2a18"
-};
-
-function applyAutoTheme(){
-  const theme = THEME_BY_DOW[new Date().getDay()];
-  if(document.documentElement.getAttribute("data-theme") === theme) return;
-  document.documentElement.setAttribute("data-theme", theme);
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute("content", THEME_COLORS[theme]);
-}
-
-applyAutoTheme();
-setInterval(applyAutoTheme, 60000);  
-
 const SUBJECTS = {
   ai:     {name:"Artificial Intelligence", color:"var(--c-ai)"},
   ailab:  {name:"Artificial Intelligence Lab", color:"var(--c-ailab)"},
@@ -1708,912 +290,234 @@ const SECTIONS = {
   },
 };
 
-/* =========================================================
-   MIDTERM EXAM ROUTINE — one array per section. Each entry
-   is a single exam slot. Colors cycle through EXAM_COLORS.
-   5A / 5C dates are placeholders until the real routine is
-   published — update them here (or ask to have them filled
-   in) once available.
-   ========================================================= */
-const EXAM_COLORS = ["#8078d6","#1a9e7a","#d9531e","#c9427a","#c98a1a","#6a9e2f"];
+const K={sec:"routine-section",grp:"routine-group",notes:"routine-notes",all:"routine-overallnote",not:"routine-notify-enabled"};
+const THEMES=["sun","mon","tue","wed","thu","fri","sat"];
+const THEME_BG={sun:"#0f241d",mon:"#0e1a33",tue:"#2a121c",wed:"#1b1330",thu:"#0b2a26",fri:"#1a1c20",sat:"#2c1e10"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const fmt=t=>`${t[0]%12||12}:${String(t[1]).padStart(2,"0")} ${t[0]>=12?"PM":"AM"}`;
+const mins=t=>t[0]*60+t[1];
+const dur=m=>m>=60?(m%60?`${Math.floor(m/60)}h ${m%60}m`:`${m/60}h`):`${m} min`;
+const hrs=m=>(m/60).toFixed(m%60?1:0)+"h";
+const load=k=>{try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return{}}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const noteKey=(s,d,i)=>`${s}-${d}-${i}`;
 
-const MIDTERM_EXAM_ROUTINE_TEMPLATE = [
-  {date:16, month:"SEP", dow:"WED", subj:"Theory of Computation", code:"CSE0611319", time:"11:30 AM – 12:30 PM"},
-  {date:17, month:"SEP", dow:"THU", subj:"Financial & Managerial Accounting", code:"GED0411311", time:"01:30 PM – 02:30 PM"},
-  {date:20, month:"SEP", dow:"SUN", subj:"Computer Networks", code:"CSE0612313", time:"10:00 AM – 11:00 AM"},
-  {date:23, month:"SEP", dow:"WED", subj:"Computer Architecture", code:"CSE0611317", time:"10:00 AM – 11:00 AM"},
-  {date:27, month:"SEP", dow:"SUN", subj:"Probability and Statistics", code:"MATH0542313", time:"11:30 AM – 12:30 PM"},
-  {date:29, month:"SEP", dow:"TUE", subj:"Artificial Intelligence", code:"CSE0613312", time:"11:30 AM – 12:30 PM"},
-];
+let sec=null,grp=null,DATA=null,activeDow=0,visible=[],bannerT=null;
+let notifyOn=localStorage.getItem(K.not)==="1";const fired=new Set();
 
-const EXAM_ROUTINES = {
-  "5A": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
-  "5B": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
-  "5C": { range:"16 SEP – 29 SEP", exams: MIDTERM_EXAM_ROUTINE_TEMPLATE },
-};
+function applyTheme(){
+  const t=THEMES[new Date().getDay()];
+  if(document.documentElement.dataset.theme===t)return;
+  document.documentElement.dataset.theme=t;
+  document.querySelector('meta[name="theme-color"]').content=THEME_BG[t];
+}
+applyTheme();setInterval(applyTheme,60000);
 
-function fmt(t){
-  let [h,m] = t;
-  const ap = h >= 12 ? "PM" : "AM";
-  let h12 = h % 12; if(h12===0) h12=12;
-  return `${h12}:${m.toString().padStart(2,"0")} ${ap}`;
-}
-function minutes(t){ return t[0]*60 + t[1]; }
+/* sheet */
+function openSheet(html,lock){$("sheetBody").innerHTML=html;$("sheet").dataset.lock=lock?"1":"";$("sheet").classList.add("open")}
+function closeSheet(){$("sheet").classList.remove("open")}
+$("sheet").addEventListener("click",e=>{if(e.target.id==="sheet"&&!e.currentTarget.dataset.lock)closeSheet()});
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600)}
 
-const now = new Date();
-const nowDow = now.getDay();
-const nowMin = now.getHours()*60 + now.getMinutes();
-
-const overlay = document.getElementById("selectOverlay");
-const selectCardInner = document.getElementById("selectCardInner");
-const subjectOverlay = document.getElementById("subjectOverlay");
-const subjectCardInner = document.getElementById("subjectCardInner");
-const sectionBadge = document.getElementById("sectionBadge");
-const pageTitle = document.getElementById("pageTitle");
-const dayNav = document.getElementById("dayNav");
-
-const SEC_KEY = "routine-section";
-const GRP_KEY = "routine-group";
-const NOTES_KEY = "routine-notes";
-const OVERALL_NOTES_KEY = "routine-overallnote";
-const NOTIFY_KEY = "routine-notify-enabled";
-const ATTEND_KEY = "routine-attendance";
-
-let currentSection = null;
-let currentGroup = null;
-let activeDow = null;
-let DATA = null;
-let lastVisibleClasses = [];
-let notifyEnabled = localStorage.getItem(NOTIFY_KEY) === "1";
-let firedReminders = new Set();
-let bannerTarget = null;   // {type:"current"|"next", untilMin: number}
-let examTabSection = null; // which section's exam routine is showing in the overlay
-
-function loadNotes(){
-  try{ return JSON.parse(localStorage.getItem(NOTES_KEY) || "{}"); }
-  catch(e){ return {}; }
-}
-function saveNotes(notes){
-  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
-}
-function noteKey(section, dow, idx){
-  return `${section}-${dow}-${idx}`;
-}
-function loadOverallNotes(){
-  try{ return JSON.parse(localStorage.getItem(OVERALL_NOTES_KEY) || "{}"); }
-  catch(e){ return {}; }
-}
-function saveOverallNotes(notes){
-  localStorage.setItem(OVERALL_NOTES_KEY, JSON.stringify(notes));
-}
-function overallNoteKey(section){
-  return `${section}`;
-}
-
-/* ---------- attendance storage ---------- */
-function loadAttendance(){
-  try{ return JSON.parse(localStorage.getItem(ATTEND_KEY) || "{}"); }
-  catch(e){ return {}; }
-}
-function saveAttendance(a){
-  localStorage.setItem(ATTEND_KEY, JSON.stringify(a));
-}
-function attendFor(section, subj){
-  const all = loadAttendance();
-  return (all[section] && all[section][subj]) || {present:0, total:0};
-}
-function markAttendance(subj, status){
-  const all = loadAttendance();
-  if(!all[currentSection]) all[currentSection] = {};
-  if(!all[currentSection][subj]) all[currentSection][subj] = {present:0, total:0};
-  all[currentSection][subj].total++;
-  if(status === "present") all[currentSection][subj].present++;
-  saveAttendance(all);
-}
-function resetAttendance(subj){
-  const all = loadAttendance();
-  if(all[currentSection]) delete all[currentSection][subj];
-  saveAttendance(all);
-}
-function attendBadgeHtml(subj){
-  const a = attendFor(currentSection, subj);
-  if(a.total === 0) return `<span class="attend-badge">no data yet</span>`;
-  const pct = Math.round((a.present/a.total)*100);
-  const cls = pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
-  return `<span class="attend-badge ${cls}">${pct}% (${a.present}/${a.total})</span>`;
-}
-
-function escapeHtml(str){
-  return str.replace(/[&<>"']/g, m => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  }[m]));
-}
-
-function renderUpdateTag(){
-  const tag = document.getElementById("updateTag");
-  if(!tag) return;
-  tag.innerHTML = `<span class="lbl2">Routine Last Updated:</span> <span class="ver">${LAST_UPDATED_DATE}</span> <span class="lbl2">at</span> <span class="ver">${LAST_UPDATED_TIME}</span>`;
-}
-renderUpdateTag();
-
-function buildDayNav(){
-  dayNav.innerHTML = "";
+/* day strip */
+function buildDays(){
+  const n=new Date(),nd=n.getDay();$("dayNav").innerHTML="";
   DATA.forEach(d=>{
-    const btn = document.createElement("button");
-    btn.dataset.dow = d.dow;
-    btn.innerHTML = `${d.label}<span class="full">${d.full.slice(0,3)}</span><span class="dot"></span>`;
-    if(d.dow===nowDow) btn.classList.add("is-today");
-    btn.addEventListener("click", ()=>{ activeDow = d.dow; render(); });
-    dayNav.appendChild(btn);
+    const dt=new Date(n);dt.setDate(n.getDate()-(nd-d.dow));
+    const b=document.createElement("button");
+    b.className="day"+(d.dow===nd?" today":"");b.dataset.dow=d.dow;
+    b.innerHTML=`<small>${d.full.slice(0,3)}</small><b>${dt.getDate()}</b>`;
+    b.onclick=()=>{activeDow=d.dow;render()};
+    $("dayNav").appendChild(b);
   });
 }
 
 function render(){
-  document.querySelectorAll("nav.days button").forEach(b=>{
-    b.classList.toggle("active", parseInt(b.dataset.dow)===activeDow);
+  const n=new Date(),nd=n.getDay(),nm=n.getHours()*60+n.getMinutes();
+  document.querySelectorAll(".day").forEach(b=>b.classList.toggle("active",+b.dataset.dow===activeDow));
+  const day=DATA.find(d=>d.dow===activeDow),board=$("board");
+  visible=day.classes.map((c,i)=>({...c,_i:i})).filter(c=>!c.batch||c.batch===grp);
+  $("live").style.display="none";bannerT=null;
+
+  if(!visible.length){
+    board.innerHTML=`<div class="empty"><b>No classes</b>Enjoy your ${day.full}.</div>`;
+    $("stats").style.display="none";renderNote();renderCount();return;
+  }
+  let cur=-1,nxt=-1;
+  if(day.dow===nd)visible.forEach((c,i)=>{
+    if(nm>=mins(c.start)&&nm<mins(c.end))cur=i;
+    if(nxt<0&&nm<mins(c.start))nxt=i;
   });
+  if(cur>-1){const c=visible[cur];bannerT={type:"cur",name:SUBJECTS[c.subj].name,at:mins(c.end)}}
+  else if(nxt>-1){const c=visible[nxt];bannerT={type:"next",name:SUBJECTS[c.subj].name,at:mins(c.start)}}
+  if(bannerT){$("live").style.display="flex";$("stName").textContent=bannerT.name;$("stTag").textContent=bannerT.type==="cur"?"Ends in":"Next class starts in"}
+  tick();
 
-  const day = DATA.find(d=>d.dow===activeDow);
-  const board = document.getElementById("board");
-  board.innerHTML = "";
+  let cm=0,free=0;
+  visible.forEach((c,i)=>{cm+=mins(c.end)-mins(c.start);if(i<visible.length-1)free+=Math.max(0,mins(visible[i+1].start)-mins(c.end))});
+  const span=mins(visible[visible.length-1].end)-mins(visible[0].start);
+  $("stats").style.display="grid";
+  $("stats").innerHTML=[[visible.length,"Classes"],[hrs(cm),"In class"],[hrs(free),"Free"],[hrs(span),"On campus"]].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join("");
 
-  const banner = document.getElementById("statusBanner");
-  const statusText = document.getElementById("statusText");
-  banner.style.display = "none";
-  const statsStrip = document.getElementById("statsStrip");
-  bannerTarget = null;
+  const notes=load(K.notes);let html="";
+  visible.forEach((c,i)=>{
+    const s=SUBJECTS[c.subj],nt=notes[noteKey(sec,day.dow,c._i)];
+    html+=`<article class="cls${i===cur?" now":""}" data-i="${c._i}" style="--sc:${s.color}">
+      <div class="t"><b>${fmt(c.start)}</b><span>to ${fmt(c.end)}</span></div>
+      <div><h3>${esc(s.name)}</h3><div class="fac">${esc(c.fac)}</div>
+        ${nt?`<div class="meta"><span class="note-pill">📌 ${esc(nt)}</span></div>`:""}</div>
+      <div class="room"><small>Room</small>${esc(c.room)}${c.batch?`<small style="margin:2px 0 0">${c.batch}</small>`:""}</div>
+    </article>`;
+    const nx=visible[i+1];
+    if(nx&&mins(nx.start)>mins(c.end))html+=`<div class="brk">☕ Break · ${dur(mins(nx.start)-mins(c.end))}</div>`;
+  });
+  board.innerHTML=html;renderNote();renderCount();
+}
+$("board").addEventListener("click",e=>{const r=e.target.closest(".cls");if(r)openClass(+r.dataset.i)});
 
-  const visibleClasses = day.classes
-    .map((c, idx) => ({...c, _idx: idx}))
-    .filter(c => !c.batch || c.batch === currentGroup);
+/* class sheet */
+function openClass(i){
+  const day=DATA.find(d=>d.dow===activeDow),c=visible.find(x=>x._i===i);if(!c)return;
+  const s=SUBJECTS[c.subj],key=noteKey(sec,day.dow,i),cur=load(K.notes)[key]||"";
+  openSheet(`
+    <h2>${esc(s.name)}</h2>
+    <p class="sub">${day.full}, ${fmt(c.start)} – ${fmt(c.end)} · ${esc(c.fac)} · Room ${esc(c.room)}${c.batch?" ("+c.batch+")":""}</p>
+    <div class="sec"><h4>📝 Note</h4>
+      <textarea id="nIn" maxlength="60" placeholder="Class test, assignment বা যেকোনো reminder...">${esc(cur)}</textarea>
+      <div class="btns"><button class="btn pri" id="nSave">Save note</button>${cur?'<button class="btn" id="nDel">Remove</button>':""}</div></div>
+    <div class="btns" style="justify-content:center;margin-top:18px"><button class="btn" id="xClose">Close</button></div>`);
+  const redo=()=>{render();openClass(i)};
+  $("nSave").onclick=()=>{const v=$("nIn").value.trim(),n=load(K.notes);v?n[key]=v:delete n[key];save(K.notes,n);redo()};
+  if($("nDel"))$("nDel").onclick=()=>{const n=load(K.notes);delete n[key];save(K.notes,n);redo()};
+  $("xClose").onclick=closeSheet;
+}
 
-  lastVisibleClasses = visibleClasses;
-
-  if(visibleClasses.length === 0){
-    board.innerHTML = `<div class="empty-day"><span class="big">NO CLASSES</span>Enjoy your ${day.full}.</div>`;
-    statsStrip.style.display = "none";
-    renderOverallNote();
-    renderPinnedCount();
-    renderRadar();
+/* my note */
+function renderNote(edit){
+  const all=load(K.all),cur=all[sec]||"",el=$("myNote");
+  if(edit){
+    el.innerHTML=`<div class="hd"><h2>✎ My note</h2></div>
+      <textarea id="mnIn" maxlength="300" placeholder="যেকোনো reminder, to-do বা যা খুশি লিখুন — সব দিনেই দেখা যাবে...">${esc(cur)}</textarea>
+      <div class="btns"><button class="btn pri" id="mnS">Save</button><button class="btn" id="mnC">Cancel</button>${cur?'<button class="btn" id="mnD">Remove</button>':""}</div>`;
+    $("mnIn").focus();
+    $("mnS").onclick=()=>{const v=$("mnIn").value.trim(),a=load(K.all);v?a[sec]=v:delete a[sec];save(K.all,a);renderNote();renderCount()};
+    $("mnC").onclick=()=>renderNote();
+    if($("mnD"))$("mnD").onclick=()=>{const a=load(K.all);delete a[sec];save(K.all,a);renderNote();renderCount()};
     return;
   }
-
-  let currentIdx = -1, nextIdx = -1;
-  if(day.dow === nowDow){
-    visibleClasses.forEach((c,i)=>{
-      const s = minutes(c.start), e = minutes(c.end);
-      if(nowMin >= s && nowMin < e) currentIdx = i;
-      if(nextIdx === -1 && nowMin < s) nextIdx = i;
-    });
-  }
-
-  if(currentIdx > -1){
-    const c = visibleClasses[currentIdx];
-    banner.style.display = "flex";
-    bannerTarget = {type:"current", label:SUBJECTS[c.subj].name.toUpperCase(), untilMin:minutes(c.end)};
-    statusText.innerHTML = `IN PROGRESS · ${SUBJECTS[c.subj].name.toUpperCase()} ENDS ${fmt(c.end)}`;
-  } else if(nextIdx > -1){
-    const c = visibleClasses[nextIdx];
-    banner.style.display = "flex";
-    bannerTarget = {type:"next", label:SUBJECTS[c.subj].name.toUpperCase(), untilMin:minutes(c.start)};
-    statusText.innerHTML = `NEXT UP · ${SUBJECTS[c.subj].name.toUpperCase()} AT ${fmt(c.start)}`;
-  }
-  tickCountdown();
-
-  /* ---- today's stats: class count / total hours / free time ---- */
-  let totalClassMin = 0;
-  visibleClasses.forEach(c => totalClassMin += minutes(c.end) - minutes(c.start));
-  let freeMin = 0;
-  visibleClasses.forEach((c,i)=>{
-    if(i < visibleClasses.length - 1){
-      const gap = minutes(visibleClasses[i+1].start) - minutes(c.end);
-      if(gap > 0) freeMin += gap;
-    }
-  });
-  const span = minutes(visibleClasses[visibleClasses.length-1].end) - minutes(visibleClasses[0].start);
-  const fmtHrs = m => (m/60).toFixed(m % 60 === 0 ? 0 : 1);
-  statsStrip.style.display = "flex";
-  statsStrip.innerHTML = `
-    <div class="stat-pill"><span class="n">${visibleClasses.length}</span><span class="l">CLASSES</span></div>
-    <div class="stat-pill"><span class="n">${fmtHrs(totalClassMin)}h</span><span class="l">CLASS TIME</span></div>
-    <div class="stat-pill"><span class="n">${freeMin > 0 ? fmtHrs(freeMin)+"h" : "0h"}</span><span class="l">FREE GAPS</span></div>
-    <div class="stat-pill"><span class="n">${fmtHrs(span)}h</span><span class="l">CAMPUS SPAN</span></div>
-  `;
-
-  const notes = loadNotes();
-
-  /* build a display list that interleaves BREAK TIME rows into any
-     gap between two consecutive classes */
-  const items = [];
-  visibleClasses.forEach((c,i)=>{
-    items.push({type:"class", data:c, seq:i});
-    if(i < visibleClasses.length - 1){
-      const gapStart = minutes(c.end);
-      const gapEnd = minutes(visibleClasses[i+1].start);
-      if(gapEnd > gapStart){
-        items.push({type:"break", start:c.end, end:visibleClasses[i+1].start});
-      }
-    }
-  });
-
-  items.forEach((item, rowI)=>{
-    const row = document.createElement("div");
-    row.style.animationDelay = (rowI*0.045)+"s";
-
-    if(item.type === "break"){
-      row.className = "row break";
-      row.innerHTML = `
-        <div class="time">${fmt(item.start)}<br>– ${fmt(item.end)}</div>
-        <div class="subject-wrap"><span class="break-chip">☕ BREAK TIME</span></div>
-        <div class="gate"></div>
-      `;
-      board.appendChild(row);
-      return;
-    }
-
-    const c = item.data;
-    const i = item.seq;
-    const subj = SUBJECTS[c.subj];
-    const note = notes[noteKey(currentSection, day.dow, c._idx)];
-
-    row.className = "row class-row" + (i===currentIdx ? " now" : "") + (note ? " has-note" : "");
-    row.dataset.idx = c._idx;
-    row.innerHTML = `
-      <div class="time"><span class="seq">${(i+1).toString().padStart(2,"0")}</span>${fmt(c.start)}<br>– ${fmt(c.end)}</div>
-      <div class="subject-wrap">
-        <span class="chip" style="background:${subj.color}">${subj.name}</span>
-        <span class="faculty">${c.fac}</span>
-        <div>
-          ${attendBadgeHtml(c.subj)}
-        </div>
-        ${note ? `<span class="note-badge">📌 ${escapeHtml(note)}</span>` : `<span class="tap-hint">tap for notes &amp; attendance ›</span>`}
-      </div>
-      <div class="gate"><span class="lbl">ROOM</span><span class="num">${c.room}${c.batch ? " " + c.batch : ""}</span></div>
-    `;
-    board.appendChild(row);
-  });
-
-  renderOverallNote();
-  renderPinnedCount();
-  renderRadar();
+  el.innerHTML=`<div class="hd"><h2>📝 My note</h2><button class="btn sm" id="mnE">${cur?"Edit":"Add note"}</button></div>
+    ${cur?`<p>${esc(cur)}</p>`:`<p class="dim">কোনো নোট নেই। ক্লাসের বাইরে যেকোনো reminder বা to-do এখানে লিখে রাখো — সব দিনেই দেখা যাবে।</p>`}`;
+  $("mnE").onclick=()=>renderNote(true);
 }
 
-/* =========================================================
-   SUBJECT DETAIL PAGE — tapping any class opens this. It
-   holds the note editor and the attendance tracker for that
-   specific class slot, together on one page.
-   ========================================================= */
-function showSubjectDetail(idx){
-  const day = DATA.find(d=>d.dow===activeDow);
-  const c = lastVisibleClasses.find(cl => cl._idx === idx);
-  if(!c) return;
-  const subj = SUBJECTS[c.subj];
-  const key = noteKey(currentSection, day.dow, idx);
-  const notes = loadNotes();
-  const existingNote = notes[key] || "";
-  const a = attendFor(currentSection, c.subj);
-  const pct = a.total ? Math.round((a.present/a.total)*100) : null;
-  const cls = pct===null ? "" : pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
-  const barColor = pct===null ? "" : pct>=80 ? "#8fd08f" : pct>=70 ? "#f2c14e" : "#f28a8a";
-
-  subjectOverlay.style.display = "flex";
-  subjectCardInner.innerHTML = `
-    <div class="kicker">${day.full.toUpperCase()} · ${fmt(c.start)} – ${fmt(c.end)}</div>
-    <h2 style="margin-bottom:6px;">${escapeHtml(subj.name)}</h2>
-    <div class="subj-meta">${escapeHtml(c.fac)} · Room ${escapeHtml(c.room)}${c.batch ? " (" + escapeHtml(c.batch) + ")" : ""}</div>
-
-    <div class="subj-section">
-      <span class="dn-title">📝 NOTE</span>
-      <textarea id="subjNoteInput" maxlength="60" placeholder="Class test, exam বা যেকোনো reminder...">${escapeHtml(existingNote)}</textarea>
-      <div class="dn-actions">
-        <button id="subjNoteSave">SAVE</button>
-        ${existingNote ? '<button id="subjNoteRemove">REMOVE</button>' : ""}
-      </div>
-    </div>
-
-    <div class="subj-section">
-      <span class="dn-title">📊 ATTENDANCE</span>
-      ${pct===null
-        ? `<div class="dn-empty">এখনো কোনো attendance log নেই।</div>`
-        : `<div class="ai-bar"><div class="ai-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-           <div class="ai-meta" style="margin-top:8px;">
-             <span class="attend-badge ${cls}">${pct}%</span>
-             <span>${a.present} present / ${a.total} logged</span>
-           </div>`}
-      <div class="dn-actions">
-        <button id="subjPresentBtn">✓ PRESENT</button>
-        <button id="subjAbsentBtn">✕ ABSENT</button>
-        ${a.total > 0 ? '<button id="subjResetBtn">RESET</button>' : ""}
-      </div>
-    </div>
-
-    <button class="back-link" id="subjCloseBtn">‹ CLOSE</button>
-  `;
-
-  document.getElementById("subjNoteSave").addEventListener("click", ()=>{
-    const val = document.getElementById("subjNoteInput").value.trim();
-    const n2 = loadNotes();
-    if(val){ n2[key] = val; } else { delete n2[key]; }
-    saveNotes(n2);
-    render();
-    showSubjectDetail(idx);
-  });
-  const rmBtn = document.getElementById("subjNoteRemove");
-  if(rmBtn){
-    rmBtn.addEventListener("click", ()=>{
-      const n2 = loadNotes();
-      delete n2[key];
-      saveNotes(n2);
-      render();
-      showSubjectDetail(idx);
-    });
-  }
-  document.getElementById("subjPresentBtn").addEventListener("click", ()=>{
-    markAttendance(c.subj, "present");
-    showToast(`✓ Marked present — ${subj.name}`);
-    render();
-    showSubjectDetail(idx);
-  });
-  document.getElementById("subjAbsentBtn").addEventListener("click", ()=>{
-    markAttendance(c.subj, "absent");
-    showToast(`✕ Marked absent — ${subj.name}`);
-    render();
-    showSubjectDetail(idx);
-  });
-  const resetBtn = document.getElementById("subjResetBtn");
-  if(resetBtn){
-    resetBtn.addEventListener("click", ()=>{
-      resetAttendance(c.subj);
-      render();
-      showSubjectDetail(idx);
-    });
-  }
-  document.getElementById("subjCloseBtn").addEventListener("click", ()=>{
-    subjectOverlay.style.display = "none";
-  });
-}
-
-/* =========================================================
-   OVERALL NOTE — a single freeform note, independent of the
-   day tab. Saved per section, on-device. Shows the same on
-   every day so it works like a sticky note for the whole week.
-   ========================================================= */
-function renderOverallNote(editing){
-  const section = document.getElementById("overallNoteSection");
-  if(!section || !currentSection) return;
-  const key = overallNoteKey(currentSection);
-  const overallNotes = loadOverallNotes();
-  const existing = overallNotes[key] || "";
-
-  if(editing){
-    section.innerHTML = `
-      <div class="dn-head"><span class="dn-title">✎ MY NOTE</span></div>
-      <textarea id="dnInput" maxlength="300" placeholder="যেকোনো reminder, class test, to-do বা যা খুশি লিখুন — সব দিনেই দেখা যাবে...">${escapeHtml(existing)}</textarea>
-      <div class="dn-actions">
-        <button id="dnSaveBtn">SAVE</button>
-        <button id="dnCancelBtn">CANCEL</button>
-        ${existing ? '<button id="dnDeleteBtn">REMOVE</button>' : ""}
-      </div>
-    `;
-    const input = document.getElementById("dnInput");
-    input.focus();
-    document.getElementById("dnSaveBtn").addEventListener("click", ()=>{
-      const val = input.value.trim();
-      const on = loadOverallNotes();
-      if(val){ on[key] = val; } else { delete on[key]; }
-      saveOverallNotes(on);
-      renderOverallNote(false);
-      renderPinnedCount();
-    });
-    document.getElementById("dnCancelBtn").addEventListener("click", ()=> renderOverallNote(false));
-    const delBtn = document.getElementById("dnDeleteBtn");
-    if(delBtn){
-      delBtn.addEventListener("click", ()=>{
-        const on = loadOverallNotes();
-        delete on[key];
-        saveOverallNotes(on);
-        renderOverallNote(false);
-        renderPinnedCount();
-      });
-    }
-    return;
-  }
-
-  section.innerHTML = `
-    <div class="dn-head">
-      <span class="dn-title">📝 MY NOTE</span>
-      <button class="dn-edit-btn" id="dnEditBtn">${existing ? "✎ edit" : "+ add note"}</button>
-    </div>
-    ${existing
-      ? `<div class="dn-text">${escapeHtml(existing)}</div>`
-      : `<div class="dn-empty">কোনো নোট নেই। ক্লাসের বাইরে যেকোনো reminder, to-do বা যা খুশি এখানে লিখে রাখো — এটা সব দিনেই দেখা যাবে।</div>`}
-  `;
-  document.getElementById("dnEditBtn").addEventListener("click", ()=> renderOverallNote(true));
-}
-
-/* =========================================================
-   PINNED NOTES OVERVIEW — every class-note and the overall
-   note, in one place.
-   ========================================================= */
-function collectAllNotes(){
-  const notes = loadNotes();
-  const overallNotes = loadOverallNotes();
-  const list = [];
-  if(currentSection){
-    const ovKey = overallNoteKey(currentSection);
-    if(overallNotes[ovKey]){
-      list.push({overall:true, dayLabel:"Pinned", sub:"My note", text:overallNotes[ovKey]});
-    }
-  }
-  if(DATA){
-    DATA.forEach(d=>{
-      d.classes.forEach((c, idx)=>{
-        if(c.batch && c.batch !== currentGroup) return;
-        const nKey = noteKey(currentSection, d.dow, idx);
-        if(notes[nKey]){
-          list.push({dow:d.dow, dayLabel:d.full, sub:SUBJECTS[c.subj].name, text:notes[nKey], idx});
-        }
-      });
-    });
-  }
+/* notes overview */
+function allNotes(){
+  const notes=load(K.notes),ov=load(K.all)[sec],list=[];
+  if(ov)list.push({day:"My note",sub:"All days",text:ov});
+  DATA.forEach(d=>d.classes.forEach((c,i)=>{
+    if(c.batch&&c.batch!==grp)return;
+    const t=notes[noteKey(sec,d.dow,i)];
+    if(t)list.push({dow:d.dow,day:d.full,sub:SUBJECTS[c.subj].name,text:t,idx:i});
+  }));
   return list;
 }
-
-function renderPinnedCount(){
-  const el = document.getElementById("pinnedCount");
-  if(!el) return;
-  el.textContent = collectAllNotes().length;
-}
-
-function showPinnedOverview(){
-  const overlay = document.getElementById("pinnedOverlay");
-  const inner = document.getElementById("pinnedCardInner");
-  const list = collectAllNotes();
-
-  inner.innerHTML = `
-    <div class="kicker">THIS WEEK</div>
-    <h2>All Notes</h2>
-    <p>Every class test &amp; reminder you've<br>pinned, in one place.</p>
-    <div class="pinned-list" id="pinnedList">
-      ${list.length === 0
-        ? `<div class="pinned-empty">কোনো নোট নেই। কোনো ক্লাসে ট্যাপ করে বা নিচের নোট কার্ডে "+ add note" চেপে যোগ করুন।</div>`
-        : list.map(n => `
-          <div class="pinned-item" ${n.dow!==undefined ? `data-dow="${n.dow}"` : ""} ${n.idx!==undefined ? `data-idx="${n.idx}"` : ""}>
-            <div class="pi-day">${n.dayLabel.toUpperCase()}</div>
-            <div class="pi-sub">${escapeHtml(n.sub)}</div>
-            <div class="pi-text">📌 ${escapeHtml(n.text)}</div>
-          </div>
-        `).join("")}
-    </div>
-    <button class="back-link" id="pinnedCloseBtn">‹ CLOSE</button>
-  `;
-  overlay.style.display = "flex";
-
-  inner.querySelectorAll(".pinned-item").forEach(item=>{
-    item.addEventListener("click", ()=>{
-      overlay.style.display = "none";
-      if(item.dataset.dow !== undefined && item.dataset.dow !== ""){
-        activeDow = parseInt(item.dataset.dow, 10);
-        render();
-        if(item.dataset.idx !== undefined){
-          showSubjectDetail(parseInt(item.dataset.idx, 10));
-        }
-      }
-    });
-  });
-  document.getElementById("pinnedCloseBtn").addEventListener("click", ()=>{
-    overlay.style.display = "none";
+function renderCount(){const n=allNotes().length,c=$("cnt");c.textContent=n;c.style.display=n?"":"none"}
+function showNotes(){
+  const l=allNotes();
+  openSheet(`<h2>All notes</h2><p class="sub">Every class note and reminder in one place.</p>
+    ${l.length?l.map(n=>`<div class="item" ${n.dow!==undefined?`data-dow="${n.dow}" data-idx="${n.idx}"`:""}><small>${esc(n.day)} · ${esc(n.sub)}</small><div class="tx">📌 ${esc(n.text)}</div></div>`).join("")
+      :`<div class="sub">কোনো নোট নেই। কোনো ক্লাসে ট্যাপ করে নোট যোগ করুন।</div>`}
+    <div class="btns" style="justify-content:center"><button class="btn" id="xClose">Close</button></div>`);
+  $("xClose").onclick=closeSheet;
+  document.querySelectorAll("#sheetBody .item[data-dow]").forEach(it=>it.onclick=()=>{
+    closeSheet();activeDow=+it.dataset.dow;render();openClass(+it.dataset.idx);
   });
 }
 
-/* =========================================================
-   ATTENDANCE OVERVIEW — per-subject present/total across
-   the whole section, with a colour-coded progress bar.
-   ========================================================= */
-function showAttendOverview(){
-  const overlay = document.getElementById("attendOverlay");
-  const inner = document.getElementById("attendCardInner");
-  const all = loadAttendance()[currentSection] || {};
-  const subjCodes = Object.keys(all).filter(k => all[k].total > 0);
-
-  inner.innerHTML = `
-    <div class="kicker">${currentSection} · GROUP ${currentGroup}</div>
-    <h2>Attendance</h2>
-    <p>Tap any class in the routine to log<br>attendance. Tracked per subject, on this device.</p>
-    <div class="attend-list" id="attendList">
-      ${subjCodes.length === 0
-        ? `<div class="pinned-empty">এখনো কোনো attendance log নেই। কোনো ক্লাসে ট্যাপ করে ✓ present বা ✕ absent চাপুন।</div>`
-        : subjCodes.map(code=>{
-            const a = all[code];
-            const pct = Math.round((a.present/a.total)*100);
-            const cls = pct>=80 ? "good" : pct>=70 ? "warn" : "bad";
-            const barColor = pct>=80 ? "#8fd08f" : pct>=70 ? "#f2c14e" : "#f28a8a";
-            const name = SUBJECTS[code] ? SUBJECTS[code].name : code;
-            return `
-              <div class="ai-row">
-                <div class="ai-top">
-                  <span class="ai-name">${escapeHtml(name)}</span>
-                  <span class="ai-pct attend-badge ${cls}">${pct}%</span>
-                </div>
-                <div class="ai-bar"><div class="ai-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-                <div class="ai-meta">
-                  <span>${a.present} present / ${a.total} logged</span>
-                  <button class="ai-reset" data-subj="${code}">reset</button>
-                </div>
-              </div>`;
-          }).join("")}
-    </div>
-    <button class="back-link" id="attendCloseBtn">‹ CLOSE</button>
-  `;
-  overlay.style.display = "flex";
-
-  inner.querySelectorAll(".ai-reset").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      resetAttendance(btn.dataset.subj);
-      showAttendOverview();
-      render();
-    });
-  });
-  document.getElementById("attendCloseBtn").addEventListener("click", ()=>{
-    overlay.style.display = "none";
-  });
-}
-
-/* =========================================================
-   MIDTERM EXAM ROUTINE OVERVIEW — one tab per section (5A /
-   5B / 5C) so any student can check any section's schedule,
-   not just their own. Opens on the student's own section by
-   default.
-   ========================================================= */
-function renderExamCard(exam, idx, color){
-  return `
-    <div class="exam-card" style="animation-delay:${idx*0.04}s;">
-      <div class="ec-date" style="background:${color};">
-        <span class="ec-dow">${exam.dow}</span>
-        <span class="ec-num">${exam.date}</span>
-        <span class="ec-mon">${exam.month}</span>
-      </div>
-      <div>
-        <span class="ec-seq">EXAM ${idx+1}</span>
-        <div class="ec-subj">${escapeHtml(exam.subj)}</div>
-        <span class="ec-code">${escapeHtml(exam.code)}</span>
-        <span class="ec-time">${exam.time}</span>
-      </div>
-    </div>
-  `;
-}
-
-function renderExamTabContent(){
-  const listEl = document.getElementById("examList");
-  const summaryEl = document.getElementById("examSummary");
-  if(!listEl) return;
-  const routine = EXAM_ROUTINES[examTabSection];
-  const exams = (routine && routine.exams) || [];
-
-  document.querySelectorAll("#examTabs button").forEach(b=>{
-    b.classList.toggle("active", b.dataset.sec === examTabSection);
-  });
-
-  if(summaryEl){
-    summaryEl.innerHTML = exams.length
-      ? `<b>${exams.length} EXAMS</b> · ${routine.range}`
-      : `NO EXAM ROUTINE PUBLISHED YET FOR ${examTabSection}`;
-  }
-
-  listEl.innerHTML = exams.length === 0
-    ? `<div class="exam-empty">এই সেকশনের midterm routine এখনো publish হয়নি। পরে আবার চেক করো।</div>`
-    : exams.map((ex,i)=> renderExamCard(ex, i, EXAM_COLORS[i % EXAM_COLORS.length])).join("");
-}
-
-function showExamOverview(){
-  const ov = document.getElementById("examOverlay");
-  const inner = document.getElementById("examCardInner");
-  examTabSection = (currentSection && EXAM_ROUTINES[currentSection]) ? currentSection : Object.keys(EXAM_ROUTINES)[0];
-
-  const sections = Object.keys(EXAM_ROUTINES);
-  inner.innerHTML = `
-    <div class="kicker">MIDTERM EXAM 2026</div>
-    <h2>Exam Routine</h2>
-    <div class="exam-tabs" id="examTabs">
-      ${sections.map(s => `<button data-sec="${s}">${s}</button>`).join("")}
-    </div>
-    <div class="exam-summary" id="examSummary"></div>
-    <div class="exam-list" id="examList"></div>
-    <button class="back-link" id="examCloseBtn">‹ CLOSE</button>
-  `;
-  ov.style.display = "flex";
-
-  inner.querySelectorAll("#examTabs button").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      examTabSection = btn.dataset.sec;
-      renderExamTabContent();
-    });
-  });
-  renderExamTabContent();
-
-  document.getElementById("examCloseBtn").addEventListener("click", ()=>{
-    ov.style.display = "none";
-  });
-}
-
-/* =========================================================
-   EXAM / TEST RADAR — scans all notes for test/exam keywords
-   and surfaces the nearest upcoming one.
-   ========================================================= */
-const RADAR_KEYWORDS = /test|exam|quiz|viva|ct\b|পরীক্ষা|টেস্ট|কুইজ/i;
-
-function renderRadar(){
-  const strip = document.getElementById("radarStrip");
-  if(!strip) return;
-  const notes = collectAllNotes().filter(n => n.dow !== undefined && RADAR_KEYWORDS.test(n.text));
-  if(notes.length === 0){ strip.innerHTML = ""; return; }
-
-  notes.forEach(n => { n.daysUntil = (n.dow - nowDow + 7) % 7; });
-  notes.sort((a,b)=> a.daysUntil - b.daysUntil);
-  const soonest = notes[0];
-  const when = soonest.daysUntil === 0 ? "TODAY" : soonest.daysUntil === 1 ? "TOMORROW" : `IN ${soonest.daysUntil} DAYS`;
-  const extra = notes.length > 1 ? ` · +${notes.length-1} more` : "";
-
-  strip.innerHTML = `
-    <div class="radar-strip">
-      ⚠️ <b>${escapeHtml(soonest.text)}</b> — ${escapeHtml(soonest.sub)} · ${when}${extra}
-    </div>
-  `;
-}
-
-/* =========================================================
-   LIVE COUNTDOWN — ticks the status banner every second
-   without a full re-render.
-   ========================================================= */
-function tickCountdown(){
-  if(!bannerTarget) return;
-  const statusText = document.getElementById("statusText");
-  if(!statusText) return;
-  const n = new Date();
-  const nowSec = n.getHours()*3600 + n.getMinutes()*60 + n.getSeconds();
-  const untilSec = bannerTarget.untilMin * 60;
-  let diff = untilSec - nowSec;
-  if(diff < 0) diff = 0;
-  const mm = Math.floor(diff/60), ss = diff%60;
-  const cd = `${mm}:${ss.toString().padStart(2,"0")}`;
-  if(bannerTarget.type === "current"){
-    statusText.innerHTML = `IN PROGRESS · ${bannerTarget.label} ENDS <span class="countdown">${cd}</span>`;
-  } else {
-    statusText.innerHTML = `NEXT UP · ${bannerTarget.label} IN <span class="countdown">${cd}</span>`;
-  }
-  maybeNotify(diff, bannerTarget);
-}
-setInterval(tickCountdown, 1000);
-
-/* =========================================================
-   CLASS REMINDER NOTIFICATIONS
-   ========================================================= */
-function maybeNotify(diffSec, target){
-  if(!notifyEnabled || target.type !== "next") return;
-  if(diffSec > 300 || diffSec <= 0) return; // fire once inside the 5-min window
-  const fireKey = `${currentSection}-${activeDow}-${target.label}-${target.untilMin}`;
-  if(firedReminders.has(fireKey)) return;
-  firedReminders.add(fireKey);
-  if("Notification" in window && Notification.permission === "granted"){
-    new Notification("Class starting soon", {
-      body: `${target.label} starts at ${fmt([Math.floor(target.untilMin/60), target.untilMin%60])}`,
-      icon: "icon-192.png"
-    });
-  } else {
-    showToast(`⏰ ${target.label} starts soon!`);
+/* countdown + reminders */
+function tick(){
+  if(!bannerT)return;
+  const n=new Date(),diff=Math.max(0,bannerT.at*60-(n.getHours()*3600+n.getMinutes()*60+n.getSeconds()));
+  $("stCd").textContent=`${Math.floor(diff/60)}:${String(diff%60).padStart(2,"0")}`;
+  if(notifyOn&&bannerT.type==="next"&&diff<=300&&diff>0){
+    const k=`${sec}-${activeDow}-${bannerT.name}-${bannerT.at}`;if(fired.has(k))return;fired.add(k);
+    const body=`${bannerT.name} starts at ${fmt([Math.floor(bannerT.at/60),bannerT.at%60])}`;
+    if("Notification" in window&&Notification.permission==="granted")new Notification("Class starting soon",{body,icon:"icon-192.png"});
+    else toast("⏰ "+body);
   }
 }
+setInterval(tick,1000);
+$("bRemind").classList.toggle("on",notifyOn);
+$("bRemind").onclick=async()=>{
+  if(!notifyOn){
+    if("Notification" in window&&Notification.permission!=="granted"){try{await Notification.requestPermission()}catch(e){}}
+    notifyOn=true;localStorage.setItem(K.not,"1");toast("🔔 You'll be reminded 5 min before class");
+  }else{notifyOn=false;localStorage.setItem(K.not,"0");toast("🔕 Reminders off")}
+  $("bRemind").classList.toggle("on",notifyOn);
+};
+$("bNotes").onclick=showNotes;
 
-function setupNotifyBtn(){
-  const btn = document.getElementById("notifyBtn");
-  btn.classList.toggle("on", notifyEnabled);
-  btn.addEventListener("click", async ()=>{
-    if(!notifyEnabled){
-      if("Notification" in window && Notification.permission !== "granted"){
-        try{ await Notification.requestPermission(); } catch(e){}
-      }
-      notifyEnabled = true;
-      localStorage.setItem(NOTIFY_KEY, "1");
-      showToast("🔔 Reminders on — you'll be nudged 5 min before class");
-    } else {
-      notifyEnabled = false;
-      localStorage.setItem(NOTIFY_KEY, "0");
-      showToast("🔕 Reminders off");
-    }
-    btn.classList.toggle("on", notifyEnabled);
-  });
-}
-
-function showToast(msg){
-  const t = document.getElementById("toast");
-  if(!t) return;
-  t.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(t._hideTimer);
-  t._hideTimer = setTimeout(()=> t.classList.remove("show"), 2600);
-}
-
-/* =========================================================
-   SWIPE BETWEEN DAYS
-   ========================================================= */
-function setupSwipe(){
-  const board = document.getElementById("board");
-  let touchStartX = null, touchStartY = null;
-  board.addEventListener("touchstart", (e)=>{
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-  }, {passive:true});
-  board.addEventListener("touchend", (e)=>{
-    if(touchStartX === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    touchStartX = null;
-    if(Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy)*1.4) return;
-    const idx = DATA.findIndex(d=>d.dow===activeDow);
-    if(dx < 0 && idx < DATA.length - 1){
-      activeDow = DATA[idx+1].dow; render();
-    } else if(dx > 0 && idx > 0){
-      activeDow = DATA[idx-1].dow; render();
-    }
-  }, {passive:true});
-}
-
-document.getElementById("board").addEventListener("click", (e)=>{
-  const row = e.target.closest(".row.class-row");
-  if(!row) return;
-  showSubjectDetail(parseInt(row.dataset.idx, 10));
-});
-
-function tickClock(){
-  const d = new Date();
-  const days=["SUN","MON","TUE","WED","THU","FRI","SAT"];
-  document.getElementById("clock").textContent =
-    `${days[d.getDay()]} ${fmt([d.getHours(), d.getMinutes()])}`;
-}
-tickClock();
-setInterval(tickClock, 15000);
-setInterval(()=>{ if(currentSection) render(); }, 30000);
-
-function updateBadge(){
-  sectionBadge.innerHTML = `
-    <div class="section-badge">
-      ${currentSection} · GROUP ${currentGroup}
-      <button id="changeBtn">CHANGE</button>
-    </div>`;
-  document.getElementById("changeBtn").addEventListener("click", showSectionStep);
-}
-
-function startWith(section, group){
-  currentSection = section;
-  currentGroup = group;
-  DATA = SECTIONS[section].days;
-  pageTitle.innerHTML = `SECTION <span>${section}</span>`;
-  activeDow = DATA.some(d=>d.dow===nowDow) ? nowDow : DATA[0].dow;
-
-  overlay.style.display = "none";
-  buildDayNav();
-  updateBadge();
-  render();
-}
-
-function saveAndStart(section, group){
-  localStorage.setItem(SEC_KEY, section);
-  localStorage.setItem(GRP_KEY, group);
-  startWith(section, group);
-}
-
-function showGroupStep(section){
-  const groups = SECTIONS[section].groups;
-  selectCardInner.innerHTML = `
-    <div class="kicker">GROUP SELECT</div>
-    <h2>Choose Your Group</h2>
-    <p>Section ${section} splits into ${groups.join(" / ")}<br>for lab classes. Saved on this device.</p>
-    <div class="select-options">
-      ${groups.map(g => `<button data-group="${g}">${g}<span class="tag">GROUP ${g}</span></button>`).join("")}
-    </div>
-    <button class="back-link" id="backBtn">‹ BACK TO SECTION</button>
-  `;
-  selectCardInner.querySelectorAll("[data-group]").forEach(btn=>{
-    btn.addEventListener("click", ()=> saveAndStart(section, btn.dataset.group));
-  });
-  document.getElementById("backBtn").addEventListener("click", showSectionStep);
-}
-
-function showSectionStep(){
-  overlay.style.display = "flex";
-  const sections = Object.keys(SECTIONS);
-  selectCardInner.innerHTML = `
-    <div class="kicker">SECTION SELECT</div>
-    <h2>Choose Your Section</h2>
-    <p>Selected once, this is saved<br>on this device.</p>
-    <div class="select-options three">
-      ${sections.map(s => `<button data-section="${s}">${s}</button>`).join("")}
-    </div>
-  `;
-  selectCardInner.querySelectorAll("[data-section]").forEach(btn=>{
-    btn.addEventListener("click", ()=> showGroupStep(btn.dataset.section));
-  });
-}
-
-document.getElementById("pinnedBtn").addEventListener("click", showPinnedOverview);
-document.getElementById("attendBtn").addEventListener("click", showAttendOverview);
-document.getElementById("examBtn").addEventListener("click", showExamOverview);
-setupNotifyBtn();
-setupSwipe();
-
-const savedSection = localStorage.getItem(SEC_KEY);
-const savedGroup = localStorage.getItem(GRP_KEY);
-
-if(savedSection && SECTIONS[savedSection] && savedGroup && SECTIONS[savedSection].groups.includes(savedGroup)){
-  startWith(savedSection, savedGroup);
-} else {
-  showSectionStep();
-}
-
-if("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>{
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
-  });
-}
-
- 
+/* swipe between days */
 (function(){
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-  if(isStandalone) return;
+  let x0=null,y0=null;const b=$("board");
+  b.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+  b.addEventListener("touchend",e=>{
+    if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)<55||Math.abs(dx)<Math.abs(dy)*1.4)return;
+    const i=DATA.findIndex(d=>d.dow===activeDow),j=dx<0?i+1:i-1;
+    if(DATA[j]){activeDow=DATA[j].dow;render()}
+  },{passive:true});
+})();
 
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+/* clock */
+function tickClock(){
+  const d=new Date();$("clockT").textContent=fmt([d.getHours(),d.getMinutes()]);
+  $("clockD").textContent=d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"});
+}
+tickClock();setInterval(tickClock,15000);
+setInterval(()=>{if(sec)render()},30000);
+$("upd").textContent=`Routine updated ${LAST_UPDATED_DATE}, ${LAST_UPDATED_TIME}`;
 
-  const btn = document.createElement("button");
-  btn.id = "installAppBtn";
-  btn.textContent = "📲 Install App";
-  btn.style.cssText = "position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;background:#f2c94c;color:#132720;font-weight:700;border:none;border-radius:999px;padding:12px 22px;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.4);display:none;cursor:pointer;font-family:inherit;";
-  document.body.appendChild(btn);
+/* section + group picker */
+function start(s,g){
+  sec=s;grp=g;DATA=SECTIONS[s].days;
+  $("title").textContent=`Section ${s}`;
+  $("grpLine").textContent=`Group ${g}`;$("changeBtn").style.display="";
+  const nd=new Date().getDay();activeDow=DATA.some(d=>d.dow===nd)?nd:DATA[0].dow;
+  closeSheet();buildDays();render();
+}
+function pickGroup(s){
+  openSheet(`<h2>Choose your group</h2><p class="sub">Section ${s} splits into ${SECTIONS[s].groups.join(" / ")} for lab classes.</p>
+    <div class="pick">${SECTIONS[s].groups.map(g=>`<button data-g="${g}">${g}</button>`).join("")}</div>
+    <div class="btns" style="justify-content:center"><button class="btn" id="back">Back</button></div>`,true);
+  document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{localStorage.setItem(K.sec,s);localStorage.setItem(K.grp,b.dataset.g);start(s,b.dataset.g)});
+  $("back").onclick=pickSection;
+}
+function pickSection(){
+  openSheet(`<h2>Choose your section</h2><p class="sub">Saved on this device, change it anytime.</p>
+    <div class="pick">${Object.keys(SECTIONS).map(s=>`<button data-s="${s}">${s}</button>`).join("")}</div>`,true);
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>pickGroup(b.dataset.s));
+}
+$("changeBtn").onclick=pickSection;
 
-  let deferredPrompt = null;
+const sS=localStorage.getItem(K.sec),sG=localStorage.getItem(K.grp);
+if(sS&&SECTIONS[sS]&&sG&&SECTIONS[sS].groups.includes(sG))start(sS,sG);else pickSection();
 
-  window.addEventListener("beforeinstallprompt", (e)=>{
-    e.preventDefault();
-    deferredPrompt = e;
-    btn.style.display = "block";
-  });
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 
-  btn.addEventListener("click", async ()=>{
-    if(deferredPrompt){
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      btn.style.display = "none";
-    } else if(isIOS){
-      showIOSHint();
-    }
-  });
-
-  window.addEventListener("appinstalled", ()=>{
-    btn.style.display = "none";
-  });
-
-  function showIOSHint(){
-    let hint = document.getElementById("iosInstallHint");
-    if(hint){ hint.style.display = "flex"; return; }
-    hint = document.createElement("div");
-    hint.id = "iosInstallHint";
-    hint.style.cssText = "position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:inherit;";
-    hint.innerHTML = `
-      <div style="background:#20443a;color:#f4f1e4;width:100%;max-width:420px;border-radius:20px 20px 0 0;padding:20px;text-align:center;border-top:2px dashed rgba(244,241,228,0.25);">
-        <p style="margin:0 0 10px;font-weight:700;">Install করতে নিচের ধাপগুলো অনুসরণ করুন:</p>
-        <p style="margin:0 0 6px;">1. নিচের Share বাটনে (⬆️) ট্যাপ করুন</p>
-        <p style="margin:0 0 14px;">2. "Add to Home Screen" সিলেক্ট করুন</p>
-        <button id="iosHintClose" style="background:#f2c94c;color:#132720;font-weight:700;border:none;border-radius:999px;padding:10px 20px;">বুঝেছি</button>
-      </div>`;
-    document.body.appendChild(hint);
-    document.getElementById("iosHintClose").addEventListener("click", ()=>{ hint.style.display = "none"; });
-  }
-
-   
-  if(isIOS){
-    btn.style.display = "block";
-  }
+/* install button */
+(function(){
+  if(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)return;
+  const btn=$("installAppBtn"),ios=/iphone|ipad|ipod/i.test(navigator.userAgent);let dp=null;
+  addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;btn.style.display="block"});
+  addEventListener("appinstalled",()=>btn.style.display="none");
+  btn.onclick=async()=>{
+    if(dp){dp.prompt();await dp.userChoice;dp=null;btn.style.display="none"}
+    else if(ios)openSheet(`<h2>Install করুন</h2><p class="sub">1. নিচের Share বাটনে (⬆️) ট্যাপ করুন<br>2. "Add to Home Screen" সিলেক্ট করুন</p><div class="btns" style="justify-content:center"><button class="btn pri" id="xClose">বুঝেছি</button></div>`),$("xClose").onclick=closeSheet;
+  };
+  if(ios)btn.style.display="block";
 })();
 </script>
 </body>
-  </html>
+</html>
